@@ -1,0 +1,30 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">My records</p>
+    <h1 class="citizen-page-title">Appeals</h1>
+    <p class="citizen-page-lede">Appeals you've filed against violations, newest first.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="newAppeal()">New appeal</button>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="withdrawError">{{ withdrawError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="appeals"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="You haven't filed any appeals."
+>
+  <ng-template #rowActions let-row>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="canWithdraw(row)"
+      [disabled]="withdrawingId === row.id"
+      (click)="withdraw(row)"
+    >
+      {{ withdrawingId === row.id ? 'Withdrawing…' : 'Withdraw' }}
+    </button>
+  </ng-template>
+</app-data-table>

@@ -1,0 +1,67 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="back()">← Back to fines</button>
+
+<div *ngIf="loading" class="text-muted small">Loading fine…</div>
+<div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+<ng-container *ngIf="!loading && !error && fine as f">
+  <p class="eyebrow">{{ f.fineNumber }}</p>
+  <h1 class="citizen-page-title">Fine details</h1>
+  <p class="citizen-page-lede">
+    Status:
+    <span class="record-list__status" [attr.data-status]="f.status">{{ f.status }}</span>
+  </p>
+
+  <div class="citizen-panel-row">
+    <section class="citizen-panel">
+      <h2 class="citizen-panel__title">Amount</h2>
+      <dl class="detail-list">
+        <div class="detail-list__row">
+          <dt>Base amount</dt>
+          <dd class="text-mono">{{ f.amount | number: '1.2-2' }} {{ f.currency }}</dd>
+        </div>
+        <div class="detail-list__row" *ngIf="f.discountAmount">
+          <dt>Early-pay discount</dt>
+          <dd class="text-mono">-{{ f.discountAmount | number: '1.2-2' }} {{ f.currency }}</dd>
+        </div>
+        <div class="detail-list__row" *ngIf="f.surchargeAmount">
+          <dt>Late surcharge</dt>
+          <dd class="text-mono">+{{ f.surchargeAmount | number: '1.2-2' }} {{ f.currency }}</dd>
+        </div>
+        <div class="detail-list__row detail-list__row--total">
+          <dt>Total due</dt>
+          <dd class="text-mono">{{ f.totalDue | number: '1.2-2' }} {{ f.currency }}</dd>
+        </div>
+        <div class="detail-list__row">
+          <dt>Penalty points</dt>
+          <dd class="text-mono">{{ f.penaltyPoints }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="citizen-panel">
+      <h2 class="citizen-panel__title">Dates</h2>
+      <dl class="detail-list">
+        <div class="detail-list__row">
+          <dt>Issued</dt>
+          <dd>{{ f.issuedAt | date }}</dd>
+        </div>
+        <div class="detail-list__row">
+          <dt>Due</dt>
+          <dd>{{ f.dueDate | date }}</dd>
+        </div>
+        <div class="detail-list__row" *ngIf="f.paidAt">
+          <dt>Paid</dt>
+          <dd>{{ f.paidAt | date }}</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+
+  <div class="detail-actions">
+    <button class="btn btn-primary" type="button" *ngIf="canPay" (click)="payNow()">Pay now</button>
+    <button class="btn btn-outline-secondary" type="button" (click)="downloadPdf()" [disabled]="downloadingPdf">
+      {{ downloadingPdf ? 'Downloading…' : 'Download PDF' }}
+    </button>
+  </div>
+  <div class="auth-alert auth-alert--error" *ngIf="pdfError">{{ pdfError }}</div>
+</ng-container>

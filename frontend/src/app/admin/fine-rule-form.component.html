@@ -1,0 +1,115 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to fine rules
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New fine rule' : 'Edit fine rule' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading rule…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="violationType">Violation type</label>
+    <select
+      id="violationType"
+      class="form-select"
+      name="violationType"
+      [(ngModel)]="violationType"
+      [disabled]="mode === 'edit'"
+      required
+    >
+      <option *ngFor="let option of typeOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="baseAmount">Base amount</label>
+    <input id="baseAmount" type="number" class="form-control" name="baseAmount" [(ngModel)]="baseAmount" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="minAmount">Min amount</label>
+    <input id="minAmount" type="number" class="form-control" name="minAmount" [(ngModel)]="minAmount" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="maxAmount">Max amount</label>
+    <input id="maxAmount" type="number" class="form-control" name="maxAmount" [(ngModel)]="maxAmount" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="penaltyPoints">Penalty points</label>
+    <input
+      id="penaltyPoints"
+      type="number"
+      class="form-control"
+      name="penaltyPoints"
+      [(ngModel)]="penaltyPoints"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="paymentDueDates">Payment due (days)</label>
+    <input
+      id="paymentDueDates"
+      type="number"
+      class="form-control"
+      name="paymentDueDates"
+      [(ngModel)]="paymentDueDates"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="earlyPayDiscountPct">Early pay discount % (optional)</label>
+    <input
+      id="earlyPayDiscountPct"
+      type="number"
+      class="form-control"
+      name="earlyPayDiscountPct"
+      [(ngModel)]="earlyPayDiscountPct"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="earlyPayWindowDay">Early pay window (days, optional)</label>
+    <input
+      id="earlyPayWindowDay"
+      type="number"
+      class="form-control"
+      name="earlyPayWindowDay"
+      [(ngModel)]="earlyPayWindowDay"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="lateSurchargePct">Late surcharge % (optional)</label>
+    <input
+      id="lateSurchargePct"
+      type="number"
+      class="form-control"
+      name="lateSurchargePct"
+      [(ngModel)]="lateSurchargePct"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="description">Description (optional)</label>
+    <textarea id="description" class="form-control" rows="2" name="description" [(ngModel)]="description"></textarea>
+  </div>
+
+  <div class="admin-form__field admin-form__field--checkbox" *ngIf="mode === 'edit'">
+    <label class="form-check-label" for="isActive">
+      <input id="isActive" type="checkbox" class="form-check-input" name="isActive" [(ngModel)]="isActive" />
+      Active
+    </label>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create rule' : 'Save changes') }}
+  </button>
+</form>

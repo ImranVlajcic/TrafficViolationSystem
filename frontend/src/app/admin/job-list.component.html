@@ -1,0 +1,83 @@
+<p class="eyebrow">Scheduler</p>
+<h1 class="admin-page-title">Background jobs</h1>
+<p class="admin-page-lede">Manual triggers and execution history for the scheduled system jobs.</p>
+
+<app-job-trigger-panel (triggered)="load()"></app-job-trigger-panel>
+
+<section class="admin-panel admin-filter-panel">
+  <div class="admin-filter-form">
+    <div class="admin-filter-form__field">
+      <label for="job-name">Job name</label>
+      <input
+        id="job-name"
+        type="text"
+        class="form-control form-control-sm"
+        [(ngModel)]="jobNameFilter"
+        (keyup.enter)="onSearch()"
+        placeholder="Filter by job name…"
+      />
+    </div>
+    <div class="admin-filter-form__actions">
+      <button type="button" class="btn btn-primary btn-sm" (click)="onSearch()">Search</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="onResetJobName()">Reset</button>
+    </div>
+    <div class="job-list-filter-toggle">
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-secondary]="activeFilter === 'all'"
+        [class.btn-outline-secondary]="activeFilter !== 'all'"
+        (click)="setFilter('all')"
+      >
+        All logs
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-secondary]="activeFilter === 'stuck'"
+        [class.btn-outline-secondary]="activeFilter !== 'stuck'"
+        (click)="setFilter('stuck')"
+      >
+        Stuck
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-secondary]="activeFilter === 'failed'"
+        [class.btn-outline-secondary]="activeFilter !== 'failed'"
+        (click)="setFilter('failed')"
+      >
+        Failed
+      </button>
+    </div>
+  </div>
+</section>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="1"
+  [hasMore]="false"
+  [count]="rows.length"
+  emptyMessage="No job execution logs match this filter."
+  (rowClick)="onRowClick($event)"
+></app-data-table>
+
+<section class="admin-panel admin-detail-panel" *ngIf="selectedLog">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">{{ selectedLog.jobName }} · {{ selectedLog.status }}</h2>
+    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeDetail()">Close</button>
+  </div>
+  <dl class="audit-detail">
+    <dt>Triggered by</dt>
+    <dd>{{ selectedLog.triggeredBy }}</dd>
+    <dt>Records processed</dt>
+    <dd class="text-mono">{{ selectedLog.recordsProcessed ?? '—' }}</dd>
+  </dl>
+  <div class="admin-placeholder-box" *ngIf="selectedLog.errorMessage">
+    <p class="eyebrow mb-1">Error</p>
+    <pre class="audit-detail__pre">{{ selectedLog.errorMessage }}</pre>
+  </div>
+</section>

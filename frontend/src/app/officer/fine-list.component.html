@@ -1,0 +1,54 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Issued by you</p>
+    <h1 class="officer-page-title">Fines</h1>
+    <p class="officer-page-lede">Fines tied to violations you've handled.</p>
+  </div>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="fines"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  [sortColumn]="sortColumn"
+  [sortDirection]="sortDirection"
+  emptyMessage="No fines issued yet."
+  (pageChange)="onPageChange($event)"
+  (sortChange)="onSortChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <div class="d-flex align-items-center gap-2" *ngIf="canCancel(row)">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        style="width: 180px"
+        placeholder="Cancellation reason"
+        [(ngModel)]="reasonDraft[row.id]"
+      />
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        type="button"
+        [disabled]="!canSubmitCancel(row) || processingId === row.id"
+        (click)="requestCancel(row)"
+      >
+        Cancel fine
+      </button>
+    </div>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="confirmOpen"
+  [tone]="confirmTone"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Cancel fine"
+  (confirmed)="onDialogConfirmed()"
+  (cancelled)="onDialogCancelled()"
+></app-confirm-dialog>

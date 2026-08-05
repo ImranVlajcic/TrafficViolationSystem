@@ -1,0 +1,6 @@
+<div class="toast-stack" *ngIf="(toasts$ | async) as toasts">
+  <div class="toast" *ngFor="let toast of toasts" [attr.data-tone]="toast.tone">
+    <span class="toast__message">{{ toast.message }}</span>
+    <button class="toast__dismiss" type="button" (click)="dismiss(toast)" aria-label="Dismiss">&times;</button>
+  </div>
+</div>

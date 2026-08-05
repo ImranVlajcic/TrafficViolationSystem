@@ -1,0 +1,133 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">System config</h1>
+    <p class="admin-page-lede">Edit runtime settings in place. Only entries marked editable can be changed here.</p>
+  </div>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="category"
+    placeholder="Category (e.g. FINE, MQTT)…"
+    [(ngModel)]="categoryFilter"
+  />
+  <select class="form-select form-select-sm" name="dataType" [(ngModel)]="dataTypeFilter">
+    <option value="">All data types</option>
+    <option *ngFor="let option of dataTypeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="saveError">{{ saveError }}</div>
+
+<div class="config-table-wrap">
+  <table class="table table-sm align-middle config-table mb-0">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Category</th>
+        <th>Type</th>
+        <th>Value</th>
+        <th>Description</th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td colspan="6" class="text-center text-muted py-4">Loading…</td>
+      </tr>
+      <tr *ngIf="!loading && error">
+        <td colspan="6" class="text-center text-danger py-4">{{ error }}</td>
+      </tr>
+      <tr *ngIf="!loading && !error && !rows.length">
+        <td colspan="6" class="text-center text-muted py-4">No config entries matched your filters.</td>
+      </tr>
+
+      <tr *ngFor="let row of rows">
+        <td class="text-mono">{{ row.configKey }}</td>
+        <td>{{ row.category }}</td>
+        <td>{{ row.dataType }}</td>
+        <td>
+          <ng-container *ngIf="!isEditing(row)">
+            <span class="text-mono">{{ row.configValue }}</span>
+          </ng-container>
+
+          <ng-container *ngIf="isEditing(row)">
+            <select *ngIf="row.dataType === 'BOOLEAN'" class="form-select form-select-sm" [(ngModel)]="editValue">
+              <option value="true">true</option>
+              <option value="false">false</option>
+            </select>
+
+            <textarea
+              *ngIf="row.dataType === 'JSON'"
+              class="form-control form-control-sm text-mono"
+              rows="3"
+              [(ngModel)]="editValue"
+            ></textarea>
+
+            <input
+              *ngIf="row.dataType === 'INTEGER'"
+              type="number"
+              step="1"
+              class="form-control form-control-sm"
+              [(ngModel)]="editValue"
+            />
+
+            <input
+              *ngIf="row.dataType === 'DECIMAL'"
+              type="number"
+              step="any"
+              class="form-control form-control-sm"
+              [(ngModel)]="editValue"
+            />
+
+            <input
+              *ngIf="row.dataType === 'STRING'"
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="editValue"
+            />
+          </ng-container>
+        </td>
+        <td>{{ row.description || '—' }}</td>
+        <td class="text-end">
+          <ng-container *ngIf="!isEditing(row)">
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              type="button"
+              [disabled]="!row.isEditable"
+              [title]="row.isEditable ? '' : 'Not editable'"
+              (click)="startEdit(row)"
+            >
+              Edit
+            </button>
+          </ng-container>
+          <ng-container *ngIf="isEditing(row)">
+            <button class="btn btn-primary btn-sm" type="button" [disabled]="saving" (click)="saveEdit(row)">
+              {{ saving ? 'Saving…' : 'Save' }}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="saving" (click)="cancelEdit()">
+              Cancel
+            </button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="config-table__footer" *ngIf="!loading && !error && rows.length">
+    <span>{{ count }} total</span>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="page <= 1" (click)="onPrevious()">
+        Previous
+      </button>
+      <span class="text-mono small">Page {{ page }}</span>
+      <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="!hasMore" (click)="onNext()">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

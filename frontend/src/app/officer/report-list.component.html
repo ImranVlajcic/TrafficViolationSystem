@@ -1,0 +1,30 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Reports</p>
+    <h1 class="officer-page-title">My reports</h1>
+    <p class="officer-page-lede">Requested reports and their generation status.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="requestNew()">Request report</button>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="downloadError">{{ downloadError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="reports"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="You haven't requested any reports yet."
+>
+  <ng-template #rowActions let-row>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="isReady(row)"
+      [disabled]="downloadingId === row.id"
+      (click)="download(row)"
+    >
+      {{ downloadingId === row.id ? 'Downloading…' : 'Download' }}
+    </button>
+  </ng-template>
+</app-data-table>

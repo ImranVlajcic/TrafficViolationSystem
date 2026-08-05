@@ -1,0 +1,18 @@
+<div class="confirm-backdrop" *ngIf="open" (click)="onCancel()">
+  <div class="confirm-dialog" [attr.data-tone]="tone" (click)="$event.stopPropagation()">
+    <h2 class="confirm-dialog__title">{{ title }}</h2>
+    <p class="confirm-dialog__message" *ngIf="message">{{ message }}</p>
+    <div class="confirm-dialog__actions">
+      <button class="btn btn-outline-secondary" type="button" (click)="onCancel()">{{ cancelLabel }}</button>
+      <button
+        class="btn"
+        [class.btn-primary]="tone === 'default'"
+        [class.confirm-dialog__danger-btn]="tone === 'danger'"
+        type="button"
+        (click)="onConfirm()"
+      >
+        {{ confirmLabel }}
+      </button>
+    </div>
+  </div>
+</div>

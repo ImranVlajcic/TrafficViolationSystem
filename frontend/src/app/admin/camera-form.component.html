@@ -1,0 +1,124 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to cameras
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New camera' : 'Edit camera' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading camera…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="serialNumber">Serial number</label>
+    <input
+      id="serialNumber"
+      class="form-control"
+      name="serialNumber"
+      [(ngModel)]="serialNumber"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="name">Name</label>
+    <input id="name" class="form-control" name="name" [(ngModel)]="name" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="cameraType">Type</label>
+    <select id="cameraType" class="form-select" name="cameraType" [(ngModel)]="cameraType" required>
+      <option *ngFor="let option of typeOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="latitude">Latitude</label>
+    <input
+      id="latitude"
+      type="number"
+      step="any"
+      class="form-control"
+      name="latitude"
+      [(ngModel)]="latitude"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="longitude">Longitude</label>
+    <input
+      id="longitude"
+      type="number"
+      step="any"
+      class="form-control"
+      name="longitude"
+      [(ngModel)]="longitude"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="directionDegrees">Direction (degrees, optional)</label>
+    <input
+      id="directionDegrees"
+      type="number"
+      class="form-control"
+      name="directionDegrees"
+      [(ngModel)]="directionDegrees"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="locationDescription">Location description</label>
+    <input
+      id="locationDescription"
+      class="form-control"
+      name="locationDescription"
+      [(ngModel)]="locationDescription"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="speedLimitKmh">Speed limit (km/h, optional)</label>
+    <input id="speedLimitKmh" type="number" class="form-control" name="speedLimitKmh" [(ngModel)]="speedLimitKmh" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="mqttTopic">MQTT topic</label>
+    <input
+      id="mqttTopic"
+      class="form-control"
+      name="mqttTopic"
+      [(ngModel)]="mqttTopic"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="installDate">Install date</label>
+    <input id="installDate" type="date" class="form-control" name="installDate" [(ngModel)]="installDate" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="firmwareVersion">Firmware version</label>
+    <input id="firmwareVersion" class="form-control" name="firmwareVersion" [(ngModel)]="firmwareVersion" />
+  </div>
+
+  <div class="admin-form__field admin-form__field--checkbox" *ngIf="mode === 'edit'">
+    <label class="form-check-label" for="isActive">
+      <input id="isActive" type="checkbox" class="form-check-input" name="isActive" [(ngModel)]="isActive" />
+      Active
+    </label>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create camera' : 'Save changes') }}
+  </button>
+</form>

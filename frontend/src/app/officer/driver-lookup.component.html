@@ -1,0 +1,29 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Quick lookup</p>
+    <h1 class="officer-page-title">Driver lookup</h1>
+    <p class="officer-page-lede">Search by license number or national ID.</p>
+  </div>
+</div>
+
+<form class="d-flex gap-2 mb-3" (ngSubmit)="search()">
+  <input
+    type="text"
+    class="form-control"
+    name="query"
+    placeholder="License number or national ID"
+    [(ngModel)]="query"
+  />
+  <button class="btn btn-primary btn-sm" type="submit" [disabled]="loading">
+    {{ loading ? 'Searching…' : 'Search' }}
+  </button>
+</form>
+
+<app-data-table
+  *ngIf="searched"
+  [columns]="columns"
+  [rows]="results"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No drivers matched that search."
+></app-data-table>

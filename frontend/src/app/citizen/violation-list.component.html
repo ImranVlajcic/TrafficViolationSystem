@@ -1,0 +1,26 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">My records</p>
+    <h1 class="citizen-page-title">Violations</h1>
+    <p class="citizen-page-lede">Violations recorded against your vehicles, newest first.</p>
+  </div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="violations"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No violations on record."
+>
+  <ng-template #rowActions let-row>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="canAppeal(row)"
+      (click)="fileAppeal(row)"
+    >
+      File appeal
+    </button>
+  </ng-template>
+</app-data-table>

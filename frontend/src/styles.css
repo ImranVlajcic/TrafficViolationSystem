@@ -1,0 +1,343 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* =========================================================================
+   TRAFICC DESIGN SYSTEM
+   Visual language borrows from the road itself: asphalt surfaces, reflective
+   signal-amber markings, and the stamped monospace lettering of a license
+   plate. Used across every screen so the product reads as one system.
+   ========================================================================= */
+
+:root {
+  /* Color */
+  --color-asphalt: #14181c;
+  --color-asphalt-soft: #1e252b;
+  --color-amber: #f2b134;
+  --color-amber-dim: #c98f1f;
+  --color-plate: #f4f5f0;
+  --color-ink: #1b2027;
+  --color-steel: #6b7684;
+  --color-steel-line: #d8dce1;
+  --color-violation: #c1432e;
+  --color-clearance: #3e7c59;
+
+  /* Type */
+  --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* Shape */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+}
+
+body {
+  background: var(--color-plate);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-ink);
+}
+
+/* Eyebrow / label style used for section kickers, status ticker text, etc. */
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-amber);
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+}
+
+/* -------------------------------------------------------------------------
+   Bootstrap overrides — restyle the base controls so the system has its own
+   identity instead of default Bootstrap blue.
+   ------------------------------------------------------------------------- */
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background-color: var(--color-asphalt);
+  border-color: var(--color-asphalt);
+  color: var(--color-plate);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-asphalt-soft);
+  border-color: var(--color-asphalt-soft);
+  color: var(--color-amber);
+}
+
+.btn-primary:disabled {
+  background-color: var(--color-steel);
+  border-color: var(--color-steel);
+}
+
+.btn-outline-primary {
+  color: var(--color-asphalt);
+  border-color: var(--color-asphalt);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-asphalt);
+  border-color: var(--color-asphalt);
+  color: var(--color-amber);
+}
+
+.btn-outline-secondary {
+  color: var(--color-steel);
+  border-color: var(--color-steel-line);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-plate);
+}
+
+.form-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-steel);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--radius-sm);
+  border-color: var(--color-steel-line);
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-body);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-amber);
+  box-shadow: 0 0 0 3px rgba(242, 177, 52, 0.35);
+}
+
+.card {
+  border-radius: var(--radius-lg);
+}
+
+a {
+  color: var(--color-asphalt);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-amber-dim);
+}
+
+.text-danger {
+  color: var(--color-violation) !important;
+}
+
+.text-success {
+  color: var(--color-clearance) !important;
+}
+
+/* -------------------------------------------------------------------------
+   Brand mark — the plate badge. Reused as the system's logo lockup on the
+   auth screens and in the dashboard header.
+   ------------------------------------------------------------------------- */
+
+.plate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 1rem 0.5rem;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-sm);
+  position: relative;
+}
+
+.plate-badge::before,
+.plate-badge::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+  flex: 0 0 auto;
+}
+
+.plate-badge__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.plate-badge__id {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.14em;
+}
+
+.plate-badge__caption {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   Auth shell — split-screen layout shared by login and register.
+   ------------------------------------------------------------------------- */
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+}
+
+.auth-aside {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(244, 245, 240, 0.055) 0px,
+      rgba(244, 245, 240, 0.055) 2px,
+      transparent 2px,
+      transparent 34px
+    ),
+    linear-gradient(160deg, var(--color-asphalt) 0%, var(--color-asphalt-soft) 100%);
+  color: var(--color-plate);
+  padding: 3rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.auth-aside__top .plate-badge {
+  color: var(--color-amber);
+}
+
+.auth-aside__heading {
+  font-size: clamp(1.9rem, 2.6vw, 2.6rem);
+  color: var(--color-plate);
+  max-width: 20ch;
+  margin: 1.75rem 0 0.9rem;
+}
+
+.auth-aside__body {
+  color: rgba(244, 245, 240, 0.7);
+  max-width: 34ch;
+  font-size: 0.98rem;
+}
+
+.auth-aside__ticker {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: rgba(244, 245, 240, 0.55);
+  border-top: 1px solid rgba(244, 245, 240, 0.18);
+  padding-top: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.auth-aside__ticker span::before {
+  content: '\2014\00a0';
+  color: var(--color-amber);
+}
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: var(--color-plate);
+}
+
+.auth-panel__inner {
+  width: 100%;
+  max-width: 440px;
+}
+
+.auth-panel__eyebrow {
+  margin-bottom: 0.4rem;
+}
+
+.auth-panel__title {
+  font-size: 2rem;
+  margin-bottom: 0.35rem;
+}
+
+.auth-panel__lede {
+  color: var(--color-steel);
+  margin-bottom: 2rem;
+}
+
+.auth-alert {
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 1.25rem;
+}
+
+.auth-alert--error {
+  background: rgba(193, 67, 46, 0.1);
+  color: var(--color-violation);
+  border: 1px solid rgba(193, 67, 46, 0.25);
+}
+
+.auth-alert--success {
+  background: rgba(62, 124, 89, 0.1);
+  color: var(--color-clearance);
+  border: 1px solid rgba(62, 124, 89, 0.25);
+}
+
+.auth-panel__footer {
+  margin-top: 1.75rem;
+  font-size: 0.92rem;
+  color: var(--color-steel);
+}
+
+.auth-panel__note {
+  font-size: 0.82rem;
+  color: var(--color-steel);
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-aside {
+    padding: 2rem 1.75rem;
+  }
+
+  .auth-aside__heading {
+    max-width: none;
+  }
+
+  .auth-aside__ticker {
+    display: none;
+  }
+}

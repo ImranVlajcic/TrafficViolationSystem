@@ -1,0 +1,17 @@
+.list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.violation-queue__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.violation-queue__notes {
+  width: 160px;
+}

@@ -1,0 +1,50 @@
+<p class="eyebrow">Reports</p>
+<h1 class="officer-page-title">Request report</h1>
+<p class="officer-page-lede">Generation runs asynchronously — check My reports for status.</p>
+
+<ng-container *ngIf="!result">
+  <form class="report-request-form" (ngSubmit)="submit()">
+    <div class="report-request-form__field">
+      <label for="reportType">Report type</label>
+      <select id="reportType" class="form-control" [(ngModel)]="reportType" name="reportType">
+        <option *ngFor="let option of reportTypeOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="report-request-form__field">
+      <label for="format">Format</label>
+      <select id="format" class="form-control" [(ngModel)]="format" name="format">
+        <option value="PDF">PDF</option>
+        <option value="CSV">CSV</option>
+      </select>
+    </div>
+
+    <div class="report-request-form__row">
+      <div class="report-request-form__field">
+        <label for="periodStart">From</label>
+        <input id="periodStart" class="form-control" type="date" [(ngModel)]="periodStart" name="periodStart" required />
+      </div>
+      <div class="report-request-form__field">
+        <label for="periodEnd">To</label>
+        <input id="periodEnd" class="form-control" type="date" [(ngModel)]="periodEnd" name="periodEnd" required />
+      </div>
+    </div>
+
+    <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+    <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+      {{ submitting ? 'Requesting…' : 'Request report' }}
+    </button>
+  </form>
+</ng-container>
+
+<ng-container *ngIf="result">
+  <section class="officer-panel report-result">
+    <p class="eyebrow">Requested</p>
+    <h2 class="officer-panel__title">{{ result.reportType }}</h2>
+    <p class="officer-panel__subtitle">
+      Status: <app-status-badge [status]="result.status"></app-status-badge>
+    </p>
+    <button class="btn btn-outline-secondary" type="button" (click)="goToReports()">View my reports</button>
+  </section>
+</ng-container>

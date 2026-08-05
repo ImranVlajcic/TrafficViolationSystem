@@ -1,0 +1,57 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Road zones</h1>
+    <p class="admin-page-lede">Manage speed zones and their camera coverage areas.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New zone</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search zone name…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="zoneType" [(ngModel)]="typeFilter">
+    <option value="">All types</option>
+    <option *ngFor="let option of typeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="isActive" [(ngModel)]="activeFilter">
+    <option value="">All statuses</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="deleteError">{{ deleteError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No road zones matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="confirmDelete(row)">Delete</button>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget"
+  tone="danger"
+  title="Delete this zone?"
+  [message]="deleteMessage"
+  confirmLabel="Delete"
+  (confirmed)="doDelete()"
+  (cancelled)="cancelDelete()"
+></app-confirm-dialog>

@@ -1,0 +1,112 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Violation</p>
+    <h1 class="officer-page-title" *ngIf="violation">{{ violation.referenceNumber }}</h1>
+    <h1 class="officer-page-title" *ngIf="!violation && !loading">Violation not found</h1>
+  </div>
+  <button class="btn btn-outline-secondary btn-sm" type="button" (click)="back()">Back to queue</button>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+<div class="data-table__state" *ngIf="loading">Loading…</div>
+
+<div *ngIf="!loading && violation">
+  <dl>
+    <dt>Status</dt>
+    <dd>{{ humanize(violation.status) }}</dd>
+
+    <dt>Type</dt>
+    <dd>{{ humanize(violation.violationType) }}</dd>
+
+    <dt>Detection method</dt>
+    <dd>{{ humanize(violation.detectionMethod) }}</dd>
+
+    <dt>Occurred</dt>
+    <dd>{{ formatDate(violation.occuredAt) }}</dd>
+
+    <ng-container *ngIf="violation.locationDescription">
+      <dt>Location</dt>
+      <dd>{{ violation.locationDescription }}</dd>
+    </ng-container>
+
+    <dt>Coordinates</dt>
+    <dd>{{ violation.locationLangitued }}, {{ violation.locationLongitude }}</dd>
+
+    <ng-container *ngIf="violation.measuredSpeed">
+      <dt>Measured speed</dt>
+      <dd>{{ violation.measuredSpeed }} km/h (limit {{ violation.speedLimit }} km/h)</dd>
+    </ng-container>
+
+    <ng-container *ngIf="violation.notes">
+      <dt>Notes</dt>
+      <dd>{{ violation.notes }}</dd>
+    </ng-container>
+
+    <dt>Vehicle</dt>
+    <dd class="text-mono">{{ violation.vehicleId }}</dd>
+
+    <ng-container *ngIf="violation.driverId">
+      <dt>Driver</dt>
+      <dd class="text-mono">{{ violation.driverId }}</dd>
+    </ng-container>
+
+    <ng-container *ngIf="violation.fineId">
+      <dt>Fine issued</dt>
+      <dd class="text-mono">{{ violation.fineId }}</dd>
+    </ng-container>
+  </dl>
+
+  <div class="d-flex gap-3 mb-3" *ngIf="violation.evidenceImageUrl || violation.evidenceVideoUrl">
+    <a *ngIf="violation.evidenceImageUrl" [href]="violation.evidenceImageUrl" target="_blank" rel="noopener">
+      View evidence image
+    </a>
+    <a *ngIf="violation.evidenceVideoUrl" [href]="violation.evidenceVideoUrl" target="_blank" rel="noopener">
+      View evidence video
+    </a>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+  <div *ngIf="isPending">
+    <div class="mb-3">
+      <label class="form-label" for="reviewNotes">Review notes</label>
+      <textarea
+        class="form-control"
+        id="reviewNotes"
+        rows="3"
+        [(ngModel)]="reviewNotes"
+        placeholder="Required to confirm or dismiss"
+      ></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        class="btn btn-primary btn-sm"
+        type="button"
+        [disabled]="!canSubmit || processing"
+        (click)="requestConfirm()"
+      >
+        Confirm violation
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        type="button"
+        [disabled]="!canSubmit || processing"
+        (click)="requestDismiss()"
+      >
+        Dismiss violation
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="confirmOpen"
+  [tone]="confirmTone"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  [confirmLabel]="confirmTone === 'danger' ? 'Dismiss' : 'Confirm'"
+  (confirmed)="onDialogConfirmed()"
+  (cancelled)="onDialogCancelled()"
+></app-confirm-dialog>

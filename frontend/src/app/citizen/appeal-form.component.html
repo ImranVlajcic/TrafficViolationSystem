@@ -1,0 +1,51 @@
+<p class="eyebrow">Appeals</p>
+<h1 class="citizen-page-title">New appeal</h1>
+<p class="citizen-page-lede">Explain why this violation shouldn't stand — an officer will review it.</p>
+
+<ng-container *ngIf="!result">
+  <form class="appeal-form" (ngSubmit)="submit()">
+    <div class="appeal-form__field">
+      <label for="violationId">Violation ID</label>
+      <input
+        id="violationId"
+        class="form-control text-mono"
+        type="text"
+        [(ngModel)]="violationId"
+        name="violationId"
+        [readonly]="violationIdLocked"
+        required
+      />
+      <p class="appeal-form__hint" *ngIf="!violationIdLocked">
+        Find this on the violation record you're appealing.
+      </p>
+    </div>
+
+    <div class="appeal-form__field">
+      <label for="reason">Reason</label>
+      <textarea id="reason" class="form-control" rows="4" [(ngModel)]="reason" name="reason" required></textarea>
+    </div>
+
+    <div class="appeal-form__field">
+      <label for="evidenceUrl">Evidence link (optional)</label>
+      <input id="evidenceUrl" class="form-control" type="url" [(ngModel)]="evidenceUrl" name="evidenceUrl" />
+    </div>
+
+    <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+    <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+      {{ submitting ? 'Submitting…' : 'Submit appeal' }}
+    </button>
+  </form>
+</ng-container>
+
+<ng-container *ngIf="result">
+  <section class="citizen-panel appeal-result">
+    <p class="eyebrow">Submitted</p>
+    <h2 class="citizen-panel__title">{{ result.appealNumber }}</h2>
+    <p class="citizen-panel__subtitle">
+      Status:
+      <span class="record-list__status" [attr.data-status]="result.status">{{ result.status }}</span>
+    </p>
+    <button class="btn btn-outline-secondary" type="button" (click)="goToAppeals()">View all appeals</button>
+  </section>
+</ng-container>

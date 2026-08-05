@@ -1,0 +1,28 @@
+<div class="heatmap-widget">
+  <form class="heatmap-filter" (ngSubmit)="loadHeatmap()">
+    <label class="heatmap-filter__field">
+      <span>From</span>
+      <input type="date" name="from" [(ngModel)]="from" />
+    </label>
+    <label class="heatmap-filter__field">
+      <span>To</span>
+      <input type="date" name="to" [(ngModel)]="to" />
+    </label>
+    <button type="submit" class="btn btn-sm btn-outline-primary" [disabled]="loading">
+      {{ loading ? 'Loading…' : 'Apply' }}
+    </button>
+  </form>
+
+  <div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+  <div #mapContainer class="heatmap-map"></div>
+
+  <div class="heatmap-empty" *ngIf="!loading && !error && !hotspots.length">
+    <p class="text-muted mb-0 small">No accident hotspots recorded for this period.</p>
+  </div>
+
+  <div class="heatmap-legend" *ngIf="hotspots.length">
+    <span class="heatmap-legend__swatch" style="background: hsl(120, 75%, 45%);"></span>Lower severity
+    <span class="heatmap-legend__swatch" style="background: hsl(0, 75%, 45%);"></span>Higher severity
+  </div>
+</div>

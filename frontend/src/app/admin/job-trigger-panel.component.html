@@ -1,0 +1,28 @@
+<section class="admin-panel admin-panel--triggers">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">Manual triggers</h2>
+    <p class="admin-panel__subtitle">Run a scheduled job on demand.</p>
+  </div>
+
+  <div class="job-trigger-grid">
+    <div class="job-trigger-card" *ngFor="let job of jobs">
+      <p class="job-trigger-card__label">{{ job.label }}</p>
+      <p class="job-trigger-card__desc text-muted small">{{ job.description }}</p>
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        [disabled]="runningKey !== null"
+        (click)="trigger(job)"
+      >
+        {{ runningKey === job.key ? 'Running…' : 'Trigger' }}
+      </button>
+      <p
+        class="job-trigger-card__result"
+        [class.job-trigger-card__result--error]="resultError"
+        *ngIf="resultKey === job.key && resultMessage"
+      >
+        {{ resultMessage }}
+      </p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,16 @@
+.list-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.list-filters__select {
+  max-width: 200px;
+}
+
+.list-error {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-violation);
+  margin-top: 0.25rem;
+}

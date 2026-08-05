@@ -1,0 +1,39 @@
+package com.academy.trafficviolationsystem.rodezone;
+
+import jakarta.validation.constraints.*;
+import lombok.*;
+import org.hibernate.validator.constraints.Range;
+
+@Data @NoArgsConstructor @AllArgsConstructor
+public class RoadZoneCreateRequest {
+
+    @NotBlank(message = "Zone name must not be blank")
+    private String name;
+
+    @NotNull(message = "Zone type is required")
+    private ZoneType zoneType;
+
+    @NotNull(message = "Speed limit is required")
+    @Min(value = 5, message = "Speed limit must be at least 5 km/h")
+    private Integer speedLimitKmh;
+
+    private String description;
+
+    @Range(min = -90, max = 90, message = "Latitude must be between -90 and 90")
+    private Double centerLatitude;
+
+    @Range(min = -180, max = 180, message = "Longitude must be between -180 and 180")
+    private Double centerLongitude;
+
+    @Positive(message = "Radius must be a positive number")
+    private Integer radiusMeters;
+
+    private String geoJsonBoundary;
+
+    @AssertTrue(message = "Zone must have either a circular shape (radius + center coordinates) or a polygon (geoJsonBoundary), not both or neither")
+    private boolean isShapeValid() {
+        boolean hasCircle = radiusMeters != null && centerLatitude != null && centerLongitude != null;
+        boolean hasPolygon = geoJsonBoundary != null && !geoJsonBoundary.isBlank();
+        return hasCircle ^ hasPolygon; // exactly one must be true
+    }
+}

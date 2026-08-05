@@ -1,0 +1,39 @@
+<p class="eyebrow">My records</p>
+<h1 class="citizen-page-title">Fines</h1>
+<p class="citizen-page-lede">Every fine issued against you, newest first.</p>
+
+<div class="list-filters">
+  <input
+    type="text"
+    class="form-control form-control-sm list-filters__search"
+    placeholder="Search by fine number…"
+    [(ngModel)]="searchTerm"
+  />
+  <select class="form-select form-select-sm list-filters__select" [(ngModel)]="statusFilter">
+    <option *ngFor="let option of statusOptions" [ngValue]="option.value">{{ option.label }}</option>
+  </select>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No fines match your filters."
+  [sortColumn]="sortColumn"
+  [sortDirection]="sortDirection"
+  (sortChange)="onSortChange($event)"
+  (rowClick)="onRowClick($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="onRowClick(row)">View</button>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="canPay(row)"
+      (click)="payNow(row)"
+    >
+      Pay
+    </button>
+  </ng-template>
+</app-data-table>

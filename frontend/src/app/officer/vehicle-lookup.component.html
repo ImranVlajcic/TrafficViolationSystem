@@ -1,0 +1,29 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Quick lookup</p>
+    <h1 class="officer-page-title">Vehicle lookup</h1>
+    <p class="officer-page-lede">Search by plate or VIN.</p>
+  </div>
+</div>
+
+<form class="d-flex gap-2 mb-3" (ngSubmit)="search()">
+  <input
+    type="text"
+    class="form-control"
+    name="query"
+    placeholder="Plate or VIN"
+    [(ngModel)]="query"
+  />
+  <button class="btn btn-primary btn-sm" type="submit" [disabled]="loading">
+    {{ loading ? 'Searching…' : 'Search' }}
+  </button>
+</form>
+
+<app-data-table
+  *ngIf="searched"
+  [columns]="columns"
+  [rows]="results"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No vehicles matched that search."
+></app-data-table>

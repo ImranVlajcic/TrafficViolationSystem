@@ -1,0 +1,36 @@
+.job-trigger-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.9rem;
+}
+
+.job-trigger-card {
+  background: var(--color-plate);
+  border: 1px solid var(--color-steel-line);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.job-trigger-card__label {
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.job-trigger-card__desc {
+  margin: 0;
+  min-height: 2.4em;
+}
+
+.job-trigger-card__result {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-steel);
+}
+
+.job-trigger-card__result--error {
+  color: var(--color-violation);
+}

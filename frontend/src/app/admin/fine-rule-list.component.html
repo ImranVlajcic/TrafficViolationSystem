@@ -1,0 +1,65 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Fine rules</h1>
+    <p class="admin-page-lede">Base amounts, penalty points, and pay windows per violation type.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New rule</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <select class="form-select form-select-sm" name="violationType" [(ngModel)]="typeFilter">
+    <option value="">All violation types</option>
+    <option *ngFor="let option of typeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="isActive" [(ngModel)]="activeFilter">
+    <option value="">All statuses</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No fine rules matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+    <button
+      class="btn btn-outline-danger btn-sm"
+      type="button"
+      *ngIf="row.isActive"
+      (click)="confirmDeactivate(row)"
+    >
+      Deactivate
+    </button>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="!row.isActive"
+      (click)="reactivate(row)"
+    >
+      Reactivate
+    </button>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="!!deactivateTarget"
+  tone="danger"
+  title="Deactivate this fine rule?"
+  [message]="deactivateMessage"
+  confirmLabel="Deactivate"
+  (confirmed)="doDeactivate()"
+  (cancelled)="cancelDeactivate()"
+></app-confirm-dialog>

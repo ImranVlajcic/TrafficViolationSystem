@@ -1,0 +1,65 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Cameras</h1>
+    <p class="admin-page-lede">Manage the camera and radar fleet.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New camera</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search serial, name, MQTT topic…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="cameraType" [(ngModel)]="typeFilter">
+    <option value="">All types</option>
+    <option *ngFor="let option of typeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="isOnline" [(ngModel)]="onlineFilter">
+    <option value="">Online + offline</option>
+    <option value="true">Online</option>
+    <option value="false">Offline</option>
+  </select>
+  <select class="form-select form-select-sm" name="isActive" [(ngModel)]="activeFilter">
+    <option value="">All statuses</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="decommissionError">{{ decommissionError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No cameras matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="maintenance(row)">Maintenance</button>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="confirmDecommission(row)">
+      Decommission
+    </button>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="!!decommissionTarget"
+  tone="danger"
+  title="Decommission this camera?"
+  [message]="decommissionMessage"
+  confirmLabel="Decommission"
+  (confirmed)="doDecommission()"
+  (cancelled)="cancelDecommission()"
+></app-confirm-dialog>

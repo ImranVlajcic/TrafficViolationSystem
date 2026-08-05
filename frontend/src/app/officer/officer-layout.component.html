@@ -1,0 +1,49 @@
+<div class="officer-shell" [class.officer-shell--collapsed]="!sidebarOpen">
+  <aside class="officer-sidebar">
+    <div class="officer-sidebar__brand">
+      <app-brand-mark></app-brand-mark>
+    </div>
+
+    <nav class="officer-sidebar__nav">
+      <a
+        class="officer-nav__link officer-nav__link--overview"
+        routerLink="/officer"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <span class="officer-nav__code">OV</span>
+        <span class="officer-nav__label">Overview</span>
+      </a>
+
+      <div class="officer-nav__group" *ngFor="let group of navGroups">
+        <p class="officer-nav__group-label">{{ group.label }}</p>
+        <a
+          class="officer-nav__link"
+          *ngFor="let item of group.items"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+        >
+          <span class="officer-nav__code">{{ item.code }}</span>
+          <span class="officer-nav__label">{{ item.label }}</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="officer-main">
+    <header class="officer-topbar">
+      <button class="officer-topbar__toggle" type="button" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <p class="eyebrow mb-0">Officer workspace</p>
+      <div class="officer-topbar__spacer"></div>
+      <button class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
+    </header>
+
+    <main class="officer-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

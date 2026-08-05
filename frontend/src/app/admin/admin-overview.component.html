@@ -1,0 +1,72 @@
+<p class="eyebrow">Overview</p>
+<h1 class="admin-page-title">System snapshot</h1>
+<p class="admin-page-lede">Current period totals across violations, fines, and collections.</p>
+
+<!-- Stat cards -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <p class="stat-card__label">Total violations</p>
+    <p class="stat-card__value text-mono">{{ stats?.totalViolations ?? '—' }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Fines issued</p>
+    <p class="stat-card__value text-mono">{{ stats?.totalFinesIssued ?? '—' }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Collected</p>
+    <p class="stat-card__value text-mono">{{ stats?.totalCollected ?? '—' }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Active cameras</p>
+    <p class="stat-card__value text-mono">{{ stats?.activeCameras ?? '—' }}</p>
+  </div>
+</div>
+<div class="auth-alert auth-alert--error mt-2" *ngIf="statsError">{{ statsError }}</div>
+
+<div class="admin-panel-row">
+  <!-- Statistics chart placeholder -->
+  <section class="admin-panel admin-panel--chart">
+    <div class="admin-panel__header">
+      <h2 class="admin-panel__title">Violations &amp; collections trend</h2>
+      <p class="admin-panel__subtitle">Chart component goes here.</p>
+    </div>
+    <div class="admin-placeholder-box">
+      <p class="eyebrow mb-1">Chart placeholder</p>
+      <p class="text-muted mb-0 small">
+        Reserved for a statistics chart sourced from <span class="text-mono">GET /api/analytics/statistics</span>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Recent report overview -->
+  <section class="admin-panel admin-panel--reports">
+    <div class="admin-panel__header">
+      <h2 class="admin-panel__title">Recent reports</h2>
+      <p class="admin-panel__subtitle">Latest generated report jobs.</p>
+    </div>
+
+    <div *ngIf="reportsLoading" class="text-muted small">Loading reports…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="reportsError">{{ reportsError }}</div>
+
+    <ul class="report-list" *ngIf="!reportsLoading && recentReports.length">
+      <li class="report-list__item" *ngFor="let report of recentReports">
+        <span class="report-list__type">{{ report.reportType }}</span>
+        <span class="report-list__status" [attr.data-status]="report.status">{{ report.status }}</span>
+      </li>
+    </ul>
+
+    <div class="admin-placeholder-box" *ngIf="!reportsLoading && !recentReports.length && !reportsError">
+      <p class="text-muted mb-0 small">No reports generated yet.</p>
+    </div>
+  </section>
+</div>
+
+<!-- Heatmap placeholder -->
+<!-- Violation heatmap -->
+<section class="admin-panel admin-panel--map">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">Violation heatmap</h2>
+    <p class="admin-panel__subtitle">Accident hotspots sourced from GET /api/analytics/heatmap.</p>
+  </div>
+  <app-heatmap></app-heatmap>
+</section>

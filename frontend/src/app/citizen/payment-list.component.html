@@ -1,0 +1,40 @@
+<p class="eyebrow">My records</p>
+<h1 class="citizen-page-title">Payments</h1>
+<p class="citizen-page-lede">Your payment history, most recent first.</p>
+
+<div class="list-filters">
+  <select class="form-select form-select-sm list-filters__select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+    <option *ngFor="let option of statusOptions" [ngValue]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm list-filters__select" [(ngModel)]="methodFilter" (ngModelChange)="onFilterChange()">
+    <option *ngFor="let option of methodOptions" [ngValue]="option.value">{{ option.label }}</option>
+  </select>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="payments"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No payments match your filters."
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  [sortColumn]="sortColumn"
+  [sortDirection]="sortDirection"
+  (pageChange)="onPageChange($event)"
+  (sortChange)="onSortChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      *ngIf="canDownloadReceipt(row)"
+      [disabled]="downloadingReceipt[row.id]"
+      (click)="downloadReceipt(row)"
+    >
+      {{ downloadingReceipt[row.id] ? 'Downloading…' : 'Receipt' }}
+    </button>
+    <span class="list-error" *ngIf="receiptErrors[row.id]">{{ receiptErrors[row.id] }}</span>
+  </ng-template>
+</app-data-table>

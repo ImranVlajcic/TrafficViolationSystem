@@ -1,0 +1,13 @@
+.list-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.list-filters__search {
+  max-width: 260px;
+}
+
+.list-filters__select {
+  max-width: 200px;
+}

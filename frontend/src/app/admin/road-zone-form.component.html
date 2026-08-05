@@ -1,0 +1,106 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to road zones
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New road zone' : 'Edit road zone' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading zone…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="name">Name</label>
+    <input id="name" class="form-control" name="name" [(ngModel)]="name" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="zoneType">Type</label>
+    <select id="zoneType" class="form-select" name="zoneType" [(ngModel)]="zoneType" required>
+      <option *ngFor="let option of typeOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="speedLimitKmh">Speed limit (km/h)</label>
+    <input
+      id="speedLimitKmh"
+      type="number"
+      class="form-control"
+      name="speedLimitKmh"
+      [(ngModel)]="speedLimitKmh"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="description">Description (optional)</label>
+    <textarea id="description" class="form-control" rows="2" name="description" [(ngModel)]="description"></textarea>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="centraLatitude">Center latitude</label>
+    <input
+      id="centraLatitude"
+      type="number"
+      step="any"
+      class="form-control"
+      name="centraLatitude"
+      [(ngModel)]="centraLatitude"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="centerLongitude">Center longitude</label>
+    <input
+      id="centerLongitude"
+      type="number"
+      step="any"
+      class="form-control"
+      name="centerLongitude"
+      [(ngModel)]="centerLongitude"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="radisuMeters">Radius (meters)</label>
+    <input
+      id="radisuMeters"
+      type="number"
+      class="form-control"
+      name="radisuMeters"
+      [(ngModel)]="radisuMeters"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="geoJsonBoundary">
+      GeoJSON boundary (optional) — raw JSON for now; a map-draw tool could replace this later
+    </label>
+    <textarea
+      id="geoJsonBoundary"
+      class="form-control text-mono"
+      rows="5"
+      name="geoJsonBoundary"
+      placeholder='{"type": "Polygon", "coordinates": [...]}'
+      [(ngModel)]="geoJsonBoundary"
+    ></textarea>
+    <div class="auth-alert auth-alert--error" *ngIf="boundaryError">{{ boundaryError }}</div>
+  </div>
+
+  <div class="admin-form__field admin-form__field--checkbox" *ngIf="mode === 'edit'">
+    <label class="form-check-label" for="isActive">
+      <input id="isActive" type="checkbox" class="form-check-input" name="isActive" [(ngModel)]="isActive" />
+      Active
+    </label>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create zone' : 'Save changes') }}
+  </button>
+</form>

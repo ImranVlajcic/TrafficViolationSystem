@@ -1,0 +1,49 @@
+<div class="admin-shell" [class.admin-shell--collapsed]="!sidebarOpen">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">
+      <app-brand-mark></app-brand-mark>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <a
+        class="admin-nav__link admin-nav__link--overview"
+        routerLink="/admin"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <span class="admin-nav__code">OV</span>
+        <span class="admin-nav__label">Overview</span>
+      </a>
+
+      <div class="admin-nav__group" *ngFor="let group of navGroups">
+        <p class="admin-nav__group-label">{{ group.label }}</p>
+        <a
+          class="admin-nav__link"
+          *ngFor="let item of group.items"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+        >
+          <span class="admin-nav__code">{{ item.code }}</span>
+          <span class="admin-nav__label">{{ item.label }}</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button class="admin-topbar__toggle" type="button" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <p class="eyebrow mb-0">Admin workspace</p>
+      <div class="admin-topbar__spacer"></div>
+      <button class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

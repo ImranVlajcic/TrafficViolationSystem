@@ -1,0 +1,9 @@
+.page-header__title {
+  font-size: 1.9rem;
+  margin: 0.25rem 0 0.35rem;
+}
+
+.page-header__lede {
+  color: var(--color-steel);
+  margin-bottom: 1.75rem;
+}

@@ -1,0 +1,79 @@
+<p class="eyebrow">Audit trail</p>
+<h1 class="admin-page-title">Audit logs</h1>
+<p class="admin-page-lede">Read-only history of admin and officer actions across the system.</p>
+
+<section class="admin-panel admin-filter-panel">
+  <form class="admin-filter-form" (ngSubmit)="onSearch()">
+    <div class="admin-filter-form__field">
+      <label for="al-action">Action</label>
+      <input id="al-action" type="text" class="form-control form-control-sm" [(ngModel)]="filters.action" name="action" placeholder="e.g. UPDATE" />
+    </div>
+    <div class="admin-filter-form__field">
+      <label for="al-entity-type">Entity type</label>
+      <input id="al-entity-type" type="text" class="form-control form-control-sm" [(ngModel)]="filters.entityType" name="entityType" placeholder="e.g. FineEntity" />
+    </div>
+    <div class="admin-filter-form__field">
+      <label for="al-entity-id">Entity id</label>
+      <input id="al-entity-id" type="text" class="form-control form-control-sm" [(ngModel)]="filters.entityId" name="entityId" />
+    </div>
+    <div class="admin-filter-form__field">
+      <label for="al-actor-id">Actor id</label>
+      <input id="al-actor-id" type="text" class="form-control form-control-sm" [(ngModel)]="filters.actorId" name="actorId" />
+    </div>
+    <div class="admin-filter-form__field">
+      <label for="al-from">From date</label>
+      <input id="al-from" type="date" class="form-control form-control-sm" [(ngModel)]="filters.fromDate" name="fromDate" />
+    </div>
+    <div class="admin-filter-form__field">
+      <label for="al-to">To date</label>
+      <input id="al-to" type="date" class="form-control form-control-sm" [(ngModel)]="filters.toDate" name="toDate" />
+    </div>
+    <div class="admin-filter-form__actions">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="onReset()">Reset</button>
+    </div>
+  </form>
+</section>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  [sortColumn]="sortColumn"
+  [sortDirection]="sortDirection"
+  emptyMessage="No audit log entries match these filters."
+  (pageChange)="onPageChange($event)"
+  (sortChange)="onSortChange($event)"
+  (rowClick)="onRowClick($event)"
+></app-data-table>
+
+<section class="admin-panel admin-detail-panel" *ngIf="selectedLog">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">{{ selectedLog.action }} · {{ selectedLog.entityType }}</h2>
+    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeDetail()">Close</button>
+  </div>
+  <dl class="audit-detail">
+    <dt>Entity id</dt>
+    <dd class="text-mono">{{ selectedLog.entityId }}</dd>
+    <dt>Actor</dt>
+    <dd>{{ selectedLog.actorUsername }} <span class="text-mono">({{ selectedLog.actorId }})</span></dd>
+    <dt>IP address</dt>
+    <dd class="text-mono">{{ selectedLog.ipAdress || '—' }}</dd>
+    <dt>Description</dt>
+    <dd>{{ selectedLog.description || '—' }}</dd>
+  </dl>
+  <div class="audit-detail__snapshots" *ngIf="selectedLog.beforeSnapshot || selectedLog.afterSnapshot">
+    <div class="audit-detail__snapshot" *ngIf="selectedLog.beforeSnapshot">
+      <p class="eyebrow mb-1">Before</p>
+      <pre class="audit-detail__pre">{{ selectedLog.beforeSnapshot }}</pre>
+    </div>
+    <div class="audit-detail__snapshot" *ngIf="selectedLog.afterSnapshot">
+      <p class="eyebrow mb-1">After</p>
+      <pre class="audit-detail__pre">{{ selectedLog.afterSnapshot }}</pre>
+    </div>
+  </div>
+</section>

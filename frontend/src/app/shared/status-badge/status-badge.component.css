@@ -1,0 +1,54 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(107, 118, 132, 0.1);
+  color: var(--color-steel);
+  white-space: nowrap;
+}
+
+/* Positive / resolved states */
+.status-badge[data-status='PAID'],
+.status-badge[data-status='SUCCESS'],
+.status-badge[data-status='CONFIRMED'],
+.status-badge[data-status='APPROVED'],
+.status-badge[data-status='CLOSED'],
+.status-badge[data-status='GENERATED'],
+.status-badge[data-status='DONE'],
+.status-badge[data-status='SENT'],
+.status-badge[data-status='ACTIVE'] {
+  background: rgba(62, 124, 89, 0.12);
+  color: var(--color-clearance);
+}
+
+/* Negative / failed states */
+.status-badge[data-status='OVERDUE'],
+.status-badge[data-status='FAILED'],
+.status-badge[data-status='CANCELLED'],
+.status-badge[data-status='DISUPTED'],
+.status-badge[data-status='DISPUTED'],
+.status-badge[data-status='DISSMISED'],
+.status-badge[data-status='REJECTED'],
+.status-badge[data-status='REVERSED'],
+.status-badge[data-status='WITHDRAWN'] {
+  background: rgba(193, 67, 46, 0.1);
+  color: var(--color-violation);
+}
+
+/* In-progress / waiting states */
+.status-badge[data-status='UNPAID'],
+.status-badge[data-status='PENDING'],
+.status-badge[data-status='SUBMITTED'],
+.status-badge[data-status='UNDER_REVIEW'],
+.status-badge[data-status='RETRYING'],
+.status-badge[data-status='RUNNING'],
+.status-badge[data-status='SKIPPED'] {
+  background: rgba(242, 177, 52, 0.15);
+  color: var(--color-amber-dim);
+}

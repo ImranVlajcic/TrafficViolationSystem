@@ -1,0 +1,113 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="backToCameras()">
+  ← Back to cameras
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">Camera maintenance</h1>
+<p class="admin-page-lede" *ngIf="camera">{{ camera.name }} — {{ camera.serialNumber }}</p>
+<div class="auth-alert auth-alert--error" *ngIf="cameraError">{{ cameraError }}</div>
+
+<section class="maintenance-panel">
+  <h2 class="maintenance-panel__title">Maintenance history</h2>
+
+  <app-data-table
+    [columns]="historyColumns"
+    [rows]="history"
+    [loading]="loadingHistory"
+    [error]="historyError"
+    emptyMessage="No maintenance logged for this camera yet."
+  >
+    <ng-template #rowActions let-row>
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        type="button"
+        *ngIf="!row.isCompleted"
+        (click)="confirmComplete(row)"
+      >
+        Mark complete
+      </button>
+    </ng-template>
+  </app-data-table>
+
+  <div class="auth-alert auth-alert--error" *ngIf="completeError">{{ completeError }}</div>
+
+  <h3 class="maintenance-panel__subtitle">Log maintenance</h3>
+  <form class="admin-form admin-form--inline" (ngSubmit)="logMaintenance()">
+    <div class="admin-form__field">
+      <label for="maintenanceType">Type</label>
+      <select id="maintenanceType" class="form-select" name="maintenanceType" [(ngModel)]="maintenanceType" required>
+        <option *ngFor="let option of typeOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="admin-form__field">
+      <label for="scheduledDate">Scheduled date</label>
+      <input
+        id="scheduledDate"
+        type="date"
+        class="form-control"
+        name="scheduledDate"
+        [(ngModel)]="scheduledDate"
+        required
+      />
+    </div>
+
+    <div class="admin-form__field">
+      <label for="firmwareBefore">Firmware before (optional)</label>
+      <input id="firmwareBefore" class="form-control" name="firmwareBefore" [(ngModel)]="firmwareBefore" />
+    </div>
+
+    <div class="admin-form__field">
+      <label for="firmwareAfter">Firmware after (optional)</label>
+      <input id="firmwareAfter" class="form-control" name="firmwareAfter" [(ngModel)]="firmwareAfter" />
+    </div>
+
+    <div class="admin-form__field">
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" class="form-control" rows="2" name="notes" [(ngModel)]="notes"></textarea>
+    </div>
+
+    <div class="admin-form__field admin-form__field--checkbox">
+      <label class="form-check-label" for="isCompleted">
+        <input
+          id="isCompleted"
+          type="checkbox"
+          class="form-check-input"
+          name="isCompleted"
+          [(ngModel)]="isCompleted"
+        />
+        Already completed
+      </label>
+    </div>
+
+    <div class="auth-alert auth-alert--error" *ngIf="logError">{{ logError }}</div>
+
+    <button class="btn btn-primary" type="submit" [disabled]="!canLog">
+      {{ logging ? 'Saving…' : 'Log entry' }}
+    </button>
+  </form>
+</section>
+
+<section class="maintenance-panel">
+  <h2 class="maintenance-panel__title">Offline cameras</h2>
+  <p class="maintenance-panel__subtitle">All currently offline, active cameras — fleet-wide, not just this one.</p>
+
+  <app-data-table
+    [columns]="offlineColumns"
+    [rows]="offline"
+    [loading]="loadingOffline"
+    [error]="offlineError"
+    emptyMessage="No cameras are currently offline."
+    (rowClick)="goToCamera($event)"
+  ></app-data-table>
+</section>
+
+<app-confirm-dialog
+  [open]="!!completeTarget"
+  tone="default"
+  title="Mark maintenance complete?"
+  [message]="completeMessage"
+  confirmLabel="Mark complete"
+  (confirmed)="doComplete()"
+  (cancelled)="cancelComplete()"
+></app-confirm-dialog>

@@ -1,0 +1,64 @@
+<p class="eyebrow">Reviews</p>
+<h1 class="officer-page-title" *ngIf="appeal">{{ appeal.appealNumber }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading appeal…</div>
+<div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+<section class="officer-panel" *ngIf="appeal">
+  <p class="officer-panel__subtitle">
+    Status: <app-status-badge [status]="appeal.status"></app-status-badge>
+  </p>
+
+  <dl class="appeal-review-fields">
+    <dt>Violation</dt>
+    <dd class="text-mono">{{ appeal.violationId }}</dd>
+
+    <dt>Driver</dt>
+    <dd class="text-mono">{{ appeal.driverId }}</dd>
+
+    <dt>Submitted</dt>
+    <dd>{{ appeal.submittedAt | date }}</dd>
+
+    <dt>Reason</dt>
+    <dd>{{ appeal.reason }}</dd>
+
+    <ng-container *ngIf="appeal.evidenceUrl">
+      <dt>Evidence</dt>
+      <dd><a [href]="appeal.evidenceUrl" target="_blank" rel="noopener">{{ appeal.evidenceUrl }}</a></dd>
+    </ng-container>
+  </dl>
+
+  <div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+  <div class="appeal-review-actions" *ngIf="canStartReview">
+    <button class="btn btn-outline-secondary" type="button" [disabled]="starting" (click)="startReview()">
+      {{ starting ? 'Starting…' : 'Start review' }}
+    </button>
+  </div>
+
+  <div class="appeal-review-decision" *ngIf="canDecide">
+    <label for="reviewNotes">Review notes</label>
+    <textarea id="reviewNotes" class="form-control" rows="3" [(ngModel)]="reviewNotes" name="reviewNotes"></textarea>
+
+    <div class="appeal-review-decision__buttons">
+      <button class="btn btn-primary" type="button" [disabled]="submitting" (click)="requestAction('approve')">
+        Approve
+      </button>
+      <button class="btn confirm-dialog__danger-btn" type="button" [disabled]="submitting" (click)="requestAction('reject')">
+        Reject
+      </button>
+    </div>
+  </div>
+
+  <button class="btn btn-outline-secondary" type="button" (click)="back()">Back to queue</button>
+</section>
+
+<app-confirm-dialog
+  [open]="confirmOpen"
+  [tone]="confirmTone"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Confirm"
+  (confirmed)="confirmDecision()"
+  (cancelled)="cancelDecision()"
+></app-confirm-dialog>

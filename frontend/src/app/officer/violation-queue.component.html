@@ -1,0 +1,55 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Review queue</p>
+    <h1 class="officer-page-title">Violations</h1>
+    <p class="officer-page-lede">Violations awaiting confirmation or dismissal.</p>
+  </div>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="violations"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="Nothing waiting for review."
+  (rowClick)="viewViolation($event)"
+>
+  <ng-template #rowActions let-row>
+    <div class="violation-queue__actions">
+      <input
+        type="text"
+        class="form-control form-control-sm violation-queue__notes"
+        placeholder="Review notes"
+        [(ngModel)]="notesDraft[row.id]"
+      />
+      <button
+        class="btn btn-primary btn-sm"
+        type="button"
+        [disabled]="!canSubmit(row) || processingId === row.id"
+        (click)="requestConfirm(row)"
+      >
+        Confirm
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        type="button"
+        [disabled]="!canSubmit(row) || processingId === row.id"
+        (click)="requestDismiss(row)"
+      >
+        Dismiss
+      </button>
+    </div>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="confirmOpen"
+  [tone]="confirmTone"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  [confirmLabel]="confirmTone === 'danger' ? 'Dismiss' : 'Confirm'"
+  (confirmed)="onDialogConfirmed()"
+  (cancelled)="onDialogCancelled()"
+></app-confirm-dialog>

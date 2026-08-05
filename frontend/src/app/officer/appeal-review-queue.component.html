@@ -1,0 +1,13 @@
+<p class="eyebrow">Reviews</p>
+<h1 class="officer-page-title">Appeal queue</h1>
+<p class="officer-page-lede">Submitted appeals waiting on a decision, oldest first.</p>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="appeals"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No appeals waiting for review."
+  (rowClick)="openReview($event)"
+>
+</app-data-table>

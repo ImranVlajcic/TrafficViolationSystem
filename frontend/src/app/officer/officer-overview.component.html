@@ -1,0 +1,86 @@
+<p class="eyebrow">Overview</p>
+<h1 class="officer-page-title">Duty queue</h1>
+<p class="officer-page-lede">What's waiting on review, and where your reports stand.</p>
+
+<!-- Stat cards -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <p class="stat-card__label">Pending violations</p>
+    <p class="stat-card__value text-mono">{{ pendingViolations.length }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Pending appeals</p>
+    <p class="stat-card__value text-mono">{{ pendingAppeals.length }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Reports requested</p>
+    <p class="stat-card__value text-mono">{{ myReports.length }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Reports ready</p>
+    <p class="stat-card__value text-mono">{{ readyReports.length }}</p>
+  </div>
+</div>
+
+<div class="officer-panel-row">
+  <!-- Pending violations -->
+  <section class="officer-panel">
+    <div class="officer-panel__header">
+      <h2 class="officer-panel__title">Pending violations</h2>
+      <p class="officer-panel__subtitle">Waiting to be confirmed or dismissed.</p>
+    </div>
+
+    <div *ngIf="violationsLoading" class="text-muted small">Loading violations…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="violationsError">{{ violationsError }}</div>
+
+    <ul class="record-list" *ngIf="!violationsLoading && pendingViolations.length">
+      <li class="record-list__item" *ngFor="let violation of pendingViolations.slice(0, 5)">
+        <span class="record-list__id text-mono">{{ violation.referenceNumber }}</span>
+        <span class="record-list__amount">{{ violation.violationType }}</span>
+        <span class="record-list__status" [attr.data-status]="violation.status">{{ violation.status }}</span>
+      </li>
+    </ul>
+
+    <div class="officer-placeholder-box" *ngIf="!violationsLoading && !pendingViolations.length && !violationsError">
+      <p class="text-muted mb-0 small">Nothing waiting on review.</p>
+    </div>
+  </section>
+
+  <!-- Pending appeals -->
+  <section class="officer-panel">
+    <div class="officer-panel__header">
+      <h2 class="officer-panel__title">Pending appeals</h2>
+      <p class="officer-panel__subtitle">Citizen appeals awaiting a decision.</p>
+    </div>
+
+    <div *ngIf="appealsLoading" class="text-muted small">Loading appeals…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="appealsError">{{ appealsError }}</div>
+
+    <ul class="record-list" *ngIf="!appealsLoading && pendingAppeals.length">
+      <li class="record-list__item" *ngFor="let appeal of pendingAppeals.slice(0, 5)">
+        <span class="record-list__id text-mono">{{ appeal.appealNumber }}</span>
+        <span class="record-list__amount">{{ appeal.reason }}</span>
+        <span class="record-list__status" [attr.data-status]="appeal.status">{{ appeal.status }}</span>
+      </li>
+    </ul>
+
+    <div class="officer-placeholder-box" *ngIf="!appealsLoading && !pendingAppeals.length && !appealsError">
+      <p class="text-muted mb-0 small">No appeals waiting for review.</p>
+    </div>
+  </section>
+</div>
+
+<!-- Quick lookup placeholder -->
+<section class="officer-panel officer-panel--lookup">
+  <div class="officer-panel__header">
+    <h2 class="officer-panel__title">Quick lookup</h2>
+    <p class="officer-panel__subtitle">Reserved space for a driver / plate lookup tool.</p>
+  </div>
+  <div class="officer-placeholder-box officer-placeholder-box--lookup">
+    <p class="eyebrow mb-1">Lookup placeholder</p>
+    <p class="text-muted mb-0 small">
+      Will search <span class="text-mono">GET /api/drivers</span> and
+      <span class="text-mono">GET /api/vehicles</span> by license/plate for a stop.
+    </p>
+  </div>
+</section>

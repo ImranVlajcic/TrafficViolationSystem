@@ -1,0 +1,71 @@
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th
+          *ngFor="let column of columns"
+          [class.data-table__th--sortable]="column.sortable"
+          [class.data-table__th--right]="column.align === 'right'"
+          [class.data-table__th--center]="column.align === 'center'"
+          (click)="onHeaderClick(column)"
+        >
+          {{ column.label }}
+          <span class="data-table__sort-icon" *ngIf="column.sortable">
+            <ng-container *ngIf="sortColumn === column.key">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</ng-container>
+          </span>
+        </th>
+        <th class="data-table__th--actions" *ngIf="rowActionsTemplate"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="loading">
+        <td [attr.colspan]="columns.length + (rowActionsTemplate ? 1 : 0)" class="data-table__state">
+          Loading…
+        </td>
+      </tr>
+
+      <tr *ngIf="!loading && error">
+        <td [attr.colspan]="columns.length + (rowActionsTemplate ? 1 : 0)" class="data-table__state data-table__state--error">
+          {{ error }}
+        </td>
+      </tr>
+
+      <tr *ngIf="!loading && !error && !rows.length">
+        <td [attr.colspan]="columns.length + (rowActionsTemplate ? 1 : 0)" class="data-table__state">
+          {{ emptyMessage }}
+        </td>
+      </tr>
+
+      <tr
+        *ngFor="let row of rows"
+        [class.data-table__row--clickable]="rowClick.observers.length > 0"
+        (click)="rowClick.emit(row)"
+      >
+        <td
+          *ngFor="let column of columns"
+          [class.data-table__td--right]="column.align === 'right'"
+          [class.data-table__td--center]="column.align === 'center'"
+          [class.text-mono]="column.mono"
+        >
+          {{ cellValue(row, column) }}
+        </td>
+        <td class="data-table__td--actions" *ngIf="rowActionsTemplate" (click)="$event.stopPropagation()">
+          <ng-container *ngTemplateOutlet="rowActionsTemplate; context: { $implicit: row }"></ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="data-table__footer" *ngIf="!loading && !error && rows.length">
+    <span class="data-table__count">{{ count }} total</span>
+    <div class="data-table__pager">
+      <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="page <= 1" (click)="onPrevious()">
+        Previous
+      </button>
+      <span class="data-table__page">Page {{ page }}</span>
+      <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="!hasMore" (click)="onNext()">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

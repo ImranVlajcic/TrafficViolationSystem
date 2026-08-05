@@ -1,0 +1,82 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to users
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New user' : 'Edit user' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading user…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="username">Username</label>
+    <input
+      id="username"
+      class="form-control"
+      name="username"
+      [(ngModel)]="username"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="email">Email</label>
+    <input id="email" type="email" class="form-control" name="email" [(ngModel)]="email" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="password">
+      {{ mode === 'create' ? 'Password' : 'New password (leave blank to keep unchanged)' }}
+    </label>
+    <input
+      id="password"
+      type="password"
+      class="form-control"
+      name="password"
+      [(ngModel)]="password"
+      [required]="mode === 'create'"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="firstName">First name</label>
+    <input id="firstName" class="form-control" name="firstName" [(ngModel)]="firstName" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="lastName">Last name</label>
+    <input id="lastName" class="form-control" name="lastName" [(ngModel)]="lastName" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="phoneNumber">Phone number</label>
+    <input id="phoneNumber" class="form-control" name="phoneNumber" [(ngModel)]="phoneNumber" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="role">Role</label>
+    <select id="role" class="form-select" name="role" [(ngModel)]="role" required>
+      <option *ngFor="let option of roleOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="badgeNumber">Badge number (officers)</label>
+    <input id="badgeNumber" class="form-control" name="badgeNumber" [(ngModel)]="badgeNumber" />
+  </div>
+
+  <div class="admin-form__field admin-form__field--checkbox" *ngIf="mode === 'edit'">
+    <label class="form-check-label" for="isActive">
+      <input id="isActive" type="checkbox" class="form-check-input" name="isActive" [(ngModel)]="isActive" />
+      Active
+    </label>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create user' : 'Save changes') }}
+  </button>
+</form>

@@ -1,0 +1,96 @@
+<p class="eyebrow">Overview</p>
+<h1 class="citizen-page-title">Your account</h1>
+<p class="citizen-page-lede">A snapshot of what's outstanding and what's happened recently.</p>
+
+<!-- Stat cards -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <p class="stat-card__label">Unpaid fines</p>
+    <p class="stat-card__value text-mono">{{ unpaidFines.length }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Total due</p>
+    <p class="stat-card__value text-mono">{{ totalDue | number: '1.2-2' }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Payments made</p>
+    <p class="stat-card__value text-mono">{{ payments.length }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="stat-card__label">Vehicles registered</p>
+    <p class="stat-card__value text-mono">—</p>
+  </div>
+</div>
+
+<div class="citizen-panel-row">
+  <!-- Recent fines -->
+  <section class="citizen-panel">
+    <div class="citizen-panel__header">
+      <h2 class="citizen-panel__title">Recent fines</h2>
+      <p class="citizen-panel__subtitle">Your most recent fines, newest first.</p>
+    </div>
+
+    <div *ngIf="finesLoading" class="text-muted small">Loading fines…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="finesError">{{ finesError }}</div>
+
+    <ul class="record-list" *ngIf="!finesLoading && recentFines.length">
+      <li class="record-list__item" *ngFor="let fine of recentFines">
+        <span class="record-list__id text-mono">{{ fine.fineNumber }}</span>
+        <span class="record-list__amount text-mono">{{ fine.totalDue | number: '1.2-2' }}</span>
+        <span class="record-list__status" [attr.data-status]="fine.status">{{ fine.status }}</span>
+      </li>
+    </ul>
+
+    <div class="citizen-placeholder-box" *ngIf="!finesLoading && !recentFines.length && !finesError">
+      <p class="text-muted mb-0 small">No fines on record.</p>
+    </div>
+  </section>
+
+  <!-- Recent payments -->
+  <section class="citizen-panel">
+    <div class="citizen-panel__header">
+      <h2 class="citizen-panel__title">Recent payments</h2>
+      <p class="citizen-panel__subtitle">Your latest completed transactions.</p>
+    </div>
+
+    <div *ngIf="paymentsLoading" class="text-muted small">Loading payments…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="paymentsError">{{ paymentsError }}</div>
+
+    <ul class="record-list" *ngIf="!paymentsLoading && recentPayments.length">
+      <li class="record-list__item" *ngFor="let payment of recentPayments">
+        <span class="record-list__id text-mono">{{ payment.transactionId }}</span>
+        <span class="record-list__amount text-mono">{{ payment.amount | number: '1.2-2' }}</span>
+        <span class="record-list__status" [attr.data-status]="payment.status">{{ payment.status }}</span>
+      </li>
+    </ul>
+
+    <div class="citizen-placeholder-box" *ngIf="!paymentsLoading && !recentPayments.length && !paymentsError">
+      <p class="text-muted mb-0 small">No payments yet.</p>
+    </div>
+  </section>
+</div>
+
+<!-- Vehicles & violations placeholders -->
+<div class="citizen-panel-row">
+  <section class="citizen-panel">
+    <div class="citizen-panel__header">
+      <h2 class="citizen-panel__title">Your vehicles</h2>
+      <p class="citizen-panel__subtitle">Registered vehicles under your name.</p>
+    </div>
+    <div class="citizen-placeholder-box">
+      <p class="eyebrow mb-1">Coming soon</p>
+      <p class="text-muted mb-0 small">Reserved for your registered vehicles.</p>
+    </div>
+  </section>
+
+  <section class="citizen-panel">
+    <div class="citizen-panel__header">
+      <h2 class="citizen-panel__title">Your violations</h2>
+      <p class="citizen-panel__subtitle">Violations logged against you.</p>
+    </div>
+    <div class="citizen-placeholder-box">
+      <p class="eyebrow mb-1">Coming soon</p>
+      <p class="text-muted mb-0 small">Reserved for your violation history.</p>
+    </div>
+  </section>
+</div>

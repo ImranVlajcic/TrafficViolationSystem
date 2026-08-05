@@ -1,0 +1,63 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="goToFine()" *ngIf="fine">
+  ← Back to fine
+</button>
+
+<p class="eyebrow">Payment</p>
+<h1 class="citizen-page-title">Pay fine</h1>
+
+<div *ngIf="loadingFine" class="text-muted small">Loading fine…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<ng-container *ngIf="!loadingFine && fine && !result">
+  <section class="citizen-panel payment-summary">
+    <h2 class="citizen-panel__title">{{ fine.fineNumber }}</h2>
+    <p class="citizen-panel__subtitle">Amount due</p>
+    <p class="payment-summary__amount text-mono">{{ fine.totalDue | number: '1.2-2' }} {{ fine.currency }}</p>
+  </section>
+
+  <form class="payment-form" (ngSubmit)="submit()" *ngIf="!loadError">
+    <div class="payment-form__field">
+      <label for="method">Payment method</label>
+      <select id="method" class="form-select" [(ngModel)]="method" name="method" required>
+        <option *ngFor="let option of methodOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="payment-form__field">
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" class="form-control" rows="2" [(ngModel)]="notes" name="notes"></textarea>
+    </div>
+
+    <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+    <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+      {{ submitting ? 'Processing…' : 'Pay ' + (fine.totalDue | number: '1.2-2') + ' ' + fine.currency }}
+    </button>
+  </form>
+</ng-container>
+
+<ng-container *ngIf="result">
+  <section class="citizen-panel payment-summary">
+    <p class="eyebrow">Payment {{ result.status | lowercase }}</p>
+    <h2 class="citizen-panel__title">Transaction {{ result.transactionId }}</h2>
+    <p class="payment-summary__amount text-mono">{{ result.amount | number: '1.2-2' }} {{ result.currency }}</p>
+
+    <div class="detail-actions">
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        *ngIf="canDownloadReceipt"
+        [disabled]="downloadingReceipt"
+        (click)="downloadReceipt()"
+      >
+        {{ downloadingReceipt ? 'Downloading…' : 'Download receipt' }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="goToPayments()">View payment history</button>
+    </div>
+
+    <p class="text-muted small mt-2" *ngIf="!canDownloadReceipt">
+      Your receipt is still generating — it'll be ready shortly in your payments list.
+    </p>
+    <div class="auth-alert auth-alert--error" *ngIf="receiptError">{{ receiptError }}</div>
+  </section>
+</ng-container>

@@ -1,0 +1,57 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Users</h1>
+    <p class="admin-page-lede">Manage accounts, roles, and access.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New user</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search username, email, name…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="role" [(ngModel)]="roleFilter">
+    <option value="">All roles</option>
+    <option *ngFor="let option of roleOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="isActive" [(ngModel)]="activeFilter">
+    <option value="">All statuses</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="deleteError">{{ deleteError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No users matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="confirmDelete(row)">Delete</button>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget"
+  tone="danger"
+  title="Delete this user?"
+  [message]="deleteMessage"
+  confirmLabel="Delete"
+  (confirmed)="doDelete()"
+  (cancelled)="cancelDelete()"
+></app-confirm-dialog>

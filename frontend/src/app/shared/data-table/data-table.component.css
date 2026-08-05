@@ -1,0 +1,115 @@
+.data-table-wrap {
+  background: var(--color-plate);
+  border: 1px solid var(--color-steel-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table thead th {
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-steel-line);
+  white-space: nowrap;
+}
+
+.data-table__th--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table__th--sortable:hover {
+  color: var(--color-ink);
+}
+
+.data-table__sort-icon {
+  display: inline-block;
+  width: 0.9em;
+  color: var(--color-amber-dim);
+}
+
+.data-table__th--right {
+  text-align: right;
+}
+
+.data-table__th--center {
+  text-align: center;
+}
+
+.data-table__th--actions {
+  width: 1%;
+}
+
+.data-table tbody td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--color-steel-line);
+  color: var(--color-ink);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table__row--clickable {
+  cursor: pointer;
+}
+
+.data-table__row--clickable:hover td {
+  background: rgba(107, 118, 132, 0.05);
+}
+
+.data-table__td--right {
+  text-align: right;
+}
+
+.data-table__td--center {
+  text-align: center;
+}
+
+.data-table__td--actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table__state {
+  text-align: center;
+  padding: 2.25rem 1rem;
+  color: var(--color-steel);
+}
+
+.data-table__state--error {
+  color: var(--color-violation);
+}
+
+.data-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--color-steel-line);
+  font-size: 0.82rem;
+  color: var(--color-steel);
+}
+
+.data-table__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.data-table__page {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}

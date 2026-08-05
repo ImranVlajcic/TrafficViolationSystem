@@ -1,0 +1,15 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">My records</p>
+    <h1 class="citizen-page-title">Vehicles</h1>
+    <p class="citizen-page-lede">Vehicles registered under your name.</p>
+  </div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="vehicles"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No vehicles are registered to you."
+></app-data-table>

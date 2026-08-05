@@ -1,0 +1,13 @@
+<section class="admin-panel admin-panel--chart">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">Violations &amp; collections trend</h2>
+    <p class="admin-panel__subtitle">Trailing 6 months, assembled from monthly statistics snapshots.</p>
+  </div>
+
+  <div *ngIf="loading" class="text-muted small">Loading trend…</div>
+  <div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+  <div class="analytics-chart-canvas" *ngIf="!loading && !error">
+    <canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>
+  </div>
+</section>
