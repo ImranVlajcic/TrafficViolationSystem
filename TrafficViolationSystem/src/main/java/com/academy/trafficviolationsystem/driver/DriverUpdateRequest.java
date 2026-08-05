@@ -25,7 +25,7 @@ public class DriverUpdateRequest {
     )
     private String phoneNumber;
 
-    private String Adress;
+    private String Address;
 
     @Size(max = 20)
     private String licenseCategory;

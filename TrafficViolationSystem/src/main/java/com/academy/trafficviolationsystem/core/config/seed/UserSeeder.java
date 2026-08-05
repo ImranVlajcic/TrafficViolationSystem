@@ -80,9 +80,16 @@ public class UserSeeder {
 
         if (userRepository.count() > 2) {
             // Additional users already seeded in a previous run — reload and return.
-            result.officers.addAll(userRepository.findAllByRole(UserRole.OFFICER)
-                    .stream().filter(o -> !o.getUsername().equals("officer")).toList());
-            result.citizens.addAll(userRepository.findAllByRole(UserRole.CITIZEN));
+            // Uses only findAll() + in-memory filtering so this doesn't depend on
+            // any custom finder method existing on UserRepository.
+            List<UserEntity> allUsers = userRepository.findAll();
+            for (UserEntity u : allUsers) {
+                if (u.getRole() == UserRole.OFFICER && !u.getUsername().equals("officer")) {
+                    result.officers.add(u);
+                } else if (u.getRole() == UserRole.CITIZEN) {
+                    result.citizens.add(u);
+                }
+            }
             return result;
         }
 
