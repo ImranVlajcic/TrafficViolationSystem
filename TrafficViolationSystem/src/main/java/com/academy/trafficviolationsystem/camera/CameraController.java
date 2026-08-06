@@ -108,12 +108,11 @@ public class CameraController implements BaseCRUDController<
 
     // ── decommission ──────────────────────────────────────────────────────
 
+    // CameraController
     @DeleteMapping("/{id}")
-    @Operation(summary = "Decommission a camera — soft-delete (ADMIN only)")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> decommission(@PathVariable Integer id) {
-        CameraEntity camera = cameraService.findEntityById(id);
-        cameraService.getRepository().delete(camera); // @PreRemove sets deletedAt
+        cameraService.decommission(id);
         return ResponseEntity.ok(ApiResponse.ok("Camera decommissioned", null));
     }
 }

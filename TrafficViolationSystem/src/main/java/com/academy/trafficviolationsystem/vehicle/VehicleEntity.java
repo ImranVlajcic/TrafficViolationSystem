@@ -2,19 +2,11 @@ package com.academy.trafficviolationsystem.vehicle;
 
 import com.academy.trafficviolationsystem.core.entities.UUIDBaseEntity;
 import com.academy.trafficviolationsystem.driver.DriverEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 
@@ -41,6 +33,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@SQLDelete(sql = "UPDATE vehicles SET deleted = now() WHERE id = ?")
+@SQLRestriction("deleted IS NULL")
 @Table(
     name = "vehicles",
     uniqueConstraints = {

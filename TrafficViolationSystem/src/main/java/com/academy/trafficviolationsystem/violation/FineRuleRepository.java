@@ -15,4 +15,6 @@ public interface FineRuleRepository extends JpaRepository<FineRuleEntity, Intege
     Optional<FineRuleEntity> findByViolationTypeAndIsActiveTrue(ViolationType violationType);
 
     boolean existsByViolationTypeAndIsActiveTrue(ViolationType violationType);
+
+    boolean existsByViolationType(ViolationType violationType);
 }

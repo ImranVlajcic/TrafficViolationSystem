@@ -1,15 +1,11 @@
 package com.academy.trafficviolationsystem.violation;
 
 import com.academy.trafficviolationsystem.core.entities.AutoIdBaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
@@ -34,6 +30,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
+@SQLRestriction("deleted IS NULL")
+@SQLDelete(sql = "UPDATE fine_rules SET deleted = now() WHERE id = ?")
 @Table(
     name = "fine_rules",
     uniqueConstraints = {

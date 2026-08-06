@@ -121,7 +121,7 @@ public class AggregationService {
                 .totalOverdue(fineRepo.countOverdueInRange(rangeStart, rangeEnd))
                 .appealsSubmitted(appealRepo.countSubmittedInRange(rangeStart, rangeEnd))
                 .appealsApproved(appealRepo.countApprovedInRange(rangeStart, rangeEnd))
-                .activeCameras(cameraRepo.countOnlineAtDate(to))
+                .activeCameras(cameraRepo.countCurrentlyOnline())
                 .computedAt(LocalDateTime.now())
                 .build();
 

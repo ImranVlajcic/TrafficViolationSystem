@@ -41,7 +41,7 @@ public class ViolationSearchObject extends BaseSearchObject<UUID> {
     private UUID officerId;
 
     /** Filter to violations detected by a specific camera (raw UUID). */
-    private UUID cameraId;
+    private Integer cameraId;
 
     /** null = all, true = only automatic, false = only manual. */
     private Boolean isAutomatic;

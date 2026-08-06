@@ -73,7 +73,7 @@ public class ViolationDto {
     private LocalDateTime reviewedAt;
 
     // linked entities
-    private UUID cameraId;
+    private Long cameraId;
     private UUID fineId;
 
     // audit

@@ -48,16 +48,16 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
 
     @Modifying
     @Query("""
-        UPDATE NotificationEntity n
-        SET n.status      = :status,
-            n.failureReason = :reason,
-            n.retryCount  = :retryCount,
-            n.nextRetryAt = :nextRetryAt
-        WHERE n.id = :id
-        """)
+    UPDATE NotificationEntity n
+    SET n.status      = :status,
+        n.failureReason = :reason,
+        n.retryCount  = :retryCount,
+        n.nextRetryAt = :nextRetryAt
+    WHERE n.id = :id
+    """)
     void markFailedWithRetry(@Param("id")           UUID id,
-                              @Param("status")        String status,
-                              @Param("reason")        String reason,
-                              @Param("retryCount")    int retryCount,
-                              @Param("nextRetryAt")   LocalDateTime nextRetryAt);
+                             @Param("status")        NotificationStatus status,
+                             @Param("reason")        String reason,
+                             @Param("retryCount")    int retryCount,
+                             @Param("nextRetryAt")   LocalDateTime nextRetryAt);
 }

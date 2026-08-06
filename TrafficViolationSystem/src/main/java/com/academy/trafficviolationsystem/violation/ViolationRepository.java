@@ -77,12 +77,21 @@ public interface ViolationRepository extends JpaRepository<ViolationEntity, UUID
             @Param("to")   LocalDateTime to);
 
     @Query("SELECT COUNT(v) FROM ViolationEntity v " +
-            "WHERE v.occurredAt >= :start AND v.occurredAt < :end AND v.detectionMethod = 'AUTOMATIC'")
-    int countAutoInRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+            "WHERE v.occurredAt >= :start " +
+            "AND v.occurredAt < :end " +
+            "AND v.isAutomatic = true " +
+            "AND v.deletedAt IS NULL")
+    int countAutoInRange(@Param("start") LocalDateTime start,
+                         @Param("end") LocalDateTime end);
+
 
     @Query("SELECT COUNT(v) FROM ViolationEntity v " +
-            "WHERE v.occurredAt >= :start AND v.occurredAt < :end AND v.detectionMethod = 'MANUAL'")
-    int countManualInRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+            "WHERE v.occurredAt >= :start " +
+            "AND v.occurredAt < :end " +
+            "AND v.isAutomatic = false " +
+            "AND v.deletedAt IS NULL")
+    int countManualInRange(@Param("start") LocalDateTime start,
+                           @Param("end") LocalDateTime end);
 
     @Query("""
     SELECT v.officer.id, v.officer.username, COUNT(v)

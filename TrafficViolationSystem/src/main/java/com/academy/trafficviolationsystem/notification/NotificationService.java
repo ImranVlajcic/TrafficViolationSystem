@@ -404,7 +404,7 @@ public class NotificationService implements BaseService<
 
         if (nextCount > MAX_RETRIES) {
             notificationRepository.markFailedWithRetry(
-                    notification.getId(), "FAILED",
+                    notification.getId(), NotificationStatus.FAILED,
                     "Max retries (" + MAX_RETRIES + ") exhausted",
                     nextCount, null);
             return;
@@ -418,7 +418,7 @@ public class NotificationService implements BaseService<
 
         LocalDateTime nextRetryAt = LocalDateTime.now().plusMinutes(minutesDelay);
         notificationRepository.markFailedWithRetry(
-                notification.getId(), "RETRYING",
+                notification.getId(), NotificationStatus.RETRYING,
                 "Dispatch failed — retry scheduled in " + minutesDelay + " minutes",
                 nextCount, nextRetryAt);
     }

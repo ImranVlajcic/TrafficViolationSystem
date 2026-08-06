@@ -1,16 +1,11 @@
 package com.academy.trafficviolationsystem.camera;
 
 import com.academy.trafficviolationsystem.core.entities.UUIDBaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -38,6 +33,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@SQLRestriction("deleted IS NULL")
+@SQLDelete(sql = "UPDATE camera_events SET deleted = now() WHERE id = ?")
 @Table(
     name = "camera_events",
     indexes = {

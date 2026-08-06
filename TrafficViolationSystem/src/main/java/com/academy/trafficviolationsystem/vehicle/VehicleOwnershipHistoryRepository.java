@@ -1,5 +1,6 @@
 package com.academy.trafficviolationsystem.vehicle;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,10 @@ import java.util.UUID;
 public interface VehicleOwnershipHistoryRepository extends JpaRepository<VehicleOwnershipHistoryEntity, UUID> {
 
     /** Full ownership history for a vehicle, newest transfer first. */
+    @EntityGraph(attributePaths = {
+            "previousOwner",
+            "newOwner"
+    })
     List<VehicleOwnershipHistoryEntity> findByVehicleIdOrderByTransferDateDesc(UUID vehicleId);
 
     /**

@@ -69,5 +69,5 @@ public class ViolationCreateRequest {
      * Camera or radar that detected the event.
      * Null for MANUAL_OFFICER violations.
      */
-    private UUID cameraId;
+    private Long cameraId;
 }

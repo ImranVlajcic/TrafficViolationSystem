@@ -2,18 +2,11 @@ package com.academy.trafficviolationsystem.camera;
 
 import com.academy.trafficviolationsystem.core.entities.UUIDBaseEntity;
 import com.academy.trafficviolationsystem.user.UserEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +25,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@SQLDelete(sql = "UPDATE camera_maintenance_log SET deleted_at = now() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(
     name = "camera_maintenance_log",
     indexes = {

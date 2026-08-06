@@ -26,7 +26,6 @@ public class VehicleUpdateRequest {
     @Size(max = 80)
     private String model;
 
-    @NotNull(message = "Year is required")
     @Min(value = 1900, message = "Year must be 1900 or later")
     private Integer year;
 

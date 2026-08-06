@@ -244,7 +244,7 @@ public class VehicleService implements BaseCRUDService<
         if (vehicle.isStolen()) {
             throw new VehicleAlreadyStolenException(vehicleId);
         }
-        vehicleRepository.markStolen(vehicleId);
+        //vehicleRepository.markStolen(vehicleId);
         vehicle.setStolen(true);
         return vehicleMapper.toDto(vehicle);
     }

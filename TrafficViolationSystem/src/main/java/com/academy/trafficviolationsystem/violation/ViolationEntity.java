@@ -4,19 +4,11 @@ import com.academy.trafficviolationsystem.core.entities.UUIDBaseEntity;
 import com.academy.trafficviolationsystem.driver.DriverEntity;
 import com.academy.trafficviolationsystem.user.UserEntity;
 import com.academy.trafficviolationsystem.vehicle.VehicleEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
@@ -49,6 +41,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@SQLRestriction("deleted IS NULL")
+@SQLDelete(sql = "UPDATE violations SET deleted = now() WHERE id = ?")
 @Table(
     name = "violations",
     uniqueConstraints = {
@@ -141,7 +135,7 @@ public class ViolationEntity extends UUIDBaseEntity {
      * Null for MANUAL_OFFICER violations.
      */
     @Column(name = "camera_id")
-    private java.util.UUID cameraId;
+    private Long cameraId;
 
     /**
      * FK to FineEntity — set by FineService after confirmation.

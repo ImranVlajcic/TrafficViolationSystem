@@ -142,10 +142,7 @@ public class CameraEventProcessorService {
         req.setViolationType(violationType);
         req.setDetectionMethod(detectionMethod);
         req.setOccurredAt(resolveTimestamp(payload, event));
-        req.setCameraId(camera.getId().longValue() != 0
-                ? java.util.UUID.nameUUIDFromBytes(
-                    ("camera-" + camera.getId()).getBytes())
-                : null);  // cameras use Integer PK; pass null and rely on cameraId field in entity
+        req.setCameraId((camera.getId()));
 
         // Location: prefer payload GPS, fall back to camera's registered position
         req.setLocationLatitude(payload.getLatitude() != null

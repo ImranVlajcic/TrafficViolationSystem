@@ -87,7 +87,7 @@ public class ViolationController implements BaseCRUDController<
 
     @GetMapping("/driver/{driverId}")
     @Operation(summary = "Get all violations for a specific driver")
-    @PreAuthorize("hasAnyRole('ADMIN', 'OFFICER') or @securityHelper.isOwnDriverRecord(#driverId, principal)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OFFICER') or @securityHelper.isOwnDriverRecord(#driverId, #principal)")
     public ResponseEntity<ApiResponse<List<ViolationDto>>> getForDriver(
             @PathVariable UUID driverId,
             @CurrentUser UserPrincipal principal) {

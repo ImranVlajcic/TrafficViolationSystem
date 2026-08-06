@@ -7,15 +7,10 @@ import com.academy.trafficviolationsystem.core.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -60,9 +55,18 @@ public class AppealController implements BaseCRUDController<
 
     @Override
     @GetMapping("/{id}")
-    @Operation(summary = "Get an appeal by ID with full details including violation reference")
+    @PreAuthorize("isAuthenticated()")
     public AppealDto findById(@PathVariable UUID id) {
+
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
         ViolationAppealEntity appeal = appealService.findEntityById(id);
+
+        appealService.verifyCitizenOwnsDriver(principal, appeal.getDriver());
+
         return appealService.toDtoWithDetails(appeal);
     }
 
@@ -115,7 +119,7 @@ public class AppealController implements BaseCRUDController<
     @Operation(summary = "Withdraw your own appeal (CITIZEN only)",
                description = "Only available while the appeal is in SUBMITTED status. " +
                              "The fine is reinstated to UNPAID on withdrawal.")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<ApiResponse<AppealDto>> withdraw(
             @PathVariable UUID id,
             @CurrentUser UserPrincipal principal) {

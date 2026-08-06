@@ -20,11 +20,9 @@ import java.util.List;
 /**
  * Business logic for fine rule management.
  *
- * FineRuleEntity rows are read on every fine issuance, so findActiveByType()
- * is cached with @Cacheable. The cache is evicted on every insert or update
- * so stale amounts are never used.
- *
- * Called by FineService.beforeInsert() to look up the rule for a violation type.
+ * FineRuleEntity active rows are read on every fine issuance, so
+ * findActiveByType() is cached with @Cacheable. The cache is evicted
+ * on every insert or update so stale amounts are never used.
  */
 @Service
 @Transactional
@@ -67,16 +65,13 @@ public class FineRuleService implements BaseCRUDService<
     @Override
     @CacheEvict(value = "fineRules", allEntries = true)
     public void beforeInsert(FineRuleCreateRequest request, FineRuleEntity entity) {
-        if (fineRuleRepository.existsByViolationTypeAndIsActiveTrue(request.getViolationType())) {
+        if (fineRuleRepository.existsByViolationType(request.getViolationType())) {
             throw new DuplicateResourceException(
-                    "An active fine rule already exists for type: " + request.getViolationType() +
-                            ". Deactivate the existing rule before creating a new one.");
+                    "A fine rule already exists for type: " + request.getViolationType() +
+                            ". Update the existing rule instead.");
         }
-        if (request.getMinAmount() != null && request.getMaxAmount() != null) {
-            if (request.getMinAmount().compareTo(request.getMaxAmount()) > 0) {
-                throw new BadRequestException("minAmount must not exceed maxAmount");
-            }
-        }
+
+        validateAmounts(request);
     }
 
     @Override
@@ -120,5 +115,13 @@ public class FineRuleService implements BaseCRUDService<
                 .orElseThrow(() -> new NotFoundException(
                     "No active fine rule configured for violation type: " + violationType +
                     ". Ask an admin to create one via POST /api/fine-rules."));
+    }
+
+    private void validateAmounts(FineRuleCreateRequest request) {
+        if (request.getMinAmount() != null && request.getMaxAmount() != null) {
+            if (request.getMinAmount().compareTo(request.getMaxAmount()) > 0) {
+                throw new BadRequestException("minAmount must not exceed maxAmount");
+            }
+        }
     }
 }

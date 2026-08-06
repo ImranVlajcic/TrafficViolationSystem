@@ -267,4 +267,12 @@ public class CameraService implements BaseCRUDService<
         }
         return processed;
     }
+
+    // CameraService
+    @Transactional
+    @AuditAction(value = "DECOMMISSION_CAMERA", entityClass = CameraEntity.class)
+    public void decommission(Integer id) {
+        CameraEntity camera = findEntityById(id);
+        cameraRepository.delete(camera); // safe now that @SQLDelete/@SQLRestriction exist
+    }
 }

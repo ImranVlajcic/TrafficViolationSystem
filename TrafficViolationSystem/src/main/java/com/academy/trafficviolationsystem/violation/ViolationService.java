@@ -260,18 +260,24 @@ public class ViolationService implements BaseCRUDService<
                                 UserPrincipal principal) {
         ViolationEntity violation = findEntityById(violationId);
 
-        if (violation.getStatus() == ViolationStatus.DISMISSED) {
-            throw new ViolationAlreadyDismissedException(violation.getReferenceNumber());
-        }
-        if (violation.getStatus() == ViolationStatus.CLOSED) {
-            throw new ViolationClosedException(violation.getReferenceNumber());
+        if (violation.getStatus() != ViolationStatus.PENDING) {
+            throw new BadRequestException(
+                    "Only PENDING violations can be dismissed. Current status: "
+                            + violation.getStatus());
         }
 
         UserEntity reviewer = loadUser(principal.getId());
+
         violation.setStatus(ViolationStatus.DISMISSED);
         violation.setReviewedBy(reviewer);
         violation.setReviewedAt(LocalDateTime.now());
-        violation.setNotes(appendReviewNote(violation.getNotes(), "DISMISSED", request.getReviewNotes(), reviewer));
+        violation.setNotes(
+                appendReviewNote(
+                        violation.getNotes(),
+                        "DISMISSED",
+                        request.getReviewNotes(),
+                        reviewer));
+
         violationRepository.save(violation);
 
         return violationMapper.toDto(violation);

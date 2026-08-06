@@ -23,6 +23,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +145,11 @@ public class AppealService implements BaseCRUDService<
                 .orElseThrow(() -> new NotFoundException(
                         "Violation " + request.getViolationId() + " not found"));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        verifyCitizenOwnsDriver(principal, violation.getDriver());
+
         if (violation.getStatus() != ViolationStatus.CONFIRMED
                 && violation.getStatus() != ViolationStatus.DISPUTED) {
             throw new ViolationNotAppealableException(violation.getStatus());
@@ -206,6 +213,11 @@ public class AppealService implements BaseCRUDService<
                     "Appeal " + entity.getAppealNumber() +
                             " can no longer be edited — it is currently " + entity.getStatus());
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        verifyCitizenOwnsDriver(principal, entity.getDriver());
     }
 
     // ── search filters ────────────────────────────────────────────────────
@@ -333,15 +345,10 @@ public class AppealService implements BaseCRUDService<
     @AuditAction(value = "WITHDRAW_APPEAL", entityClass = ViolationAppealEntity.class)
     public AppealDto withdraw(UUID appealId, UserPrincipal principal) {
         ViolationAppealEntity appeal = findEntityById(appealId);
-        AppealState next = currentState(appeal).withdraw(appeal.getAppealNumber());
 
-        // Citizens can only withdraw their own appeals
-        if (principal.isCitizen()) {
-            DriverEntity driver = driverRepository.findByUserId(principal.getId()).orElse(null);
-            if (driver == null || !driver.getId().equals(appeal.getDriver().getId())) {
-                throw new AppealAccessDeniedException("You can only withdraw your own appeals");
-            }
-        }
+        verifyCitizenOwnsDriver(principal, appeal.getDriver());
+
+        AppealState next = currentState(appeal).withdraw(appeal.getAppealNumber());
 
         appeal.setStatus(next.getStatus());
         appeal.setReviewedAt(LocalDateTime.now());
@@ -428,5 +435,17 @@ public class AppealService implements BaseCRUDService<
         LocalDateTime yearEnd   = LocalDate.of(year + 1, 1, 1).atStartOfDay();
         long count = appealRepository.countByYear(yearStart, yearEnd);
         return String.format("APP-%d-%06d", year, count + 1);
+    }
+
+    void verifyCitizenOwnsDriver(UserPrincipal principal, DriverEntity appealDriver) {
+        if (principal.isCitizen()) {
+            DriverEntity driver = driverRepository.findByUserId(principal.getId())
+                    .orElse(null);
+
+            if (driver == null || !driver.getId().equals(appealDriver.getId())) {
+                throw new AppealAccessDeniedException(
+                        "You can only access your own appeals");
+            }
+        }
     }
 }

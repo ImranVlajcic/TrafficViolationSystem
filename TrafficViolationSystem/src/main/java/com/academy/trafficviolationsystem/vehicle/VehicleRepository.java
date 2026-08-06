@@ -1,5 +1,6 @@
 package com.academy.trafficviolationsystem.vehicle;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,9 +30,11 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, UUID> {
     boolean existsByVin(String vin);
 
     /** All active vehicles for a given owner. */
+    @EntityGraph(attributePaths = "owner")
     List<VehicleEntity> findByOwnerIdAndIsActiveTrue(UUID ownerId);
 
     /** All vehicles (active or not) for a given owner — for full history view. */
+    @EntityGraph(attributePaths = "owner")
     List<VehicleEntity> findByOwnerIdOrderByCreatedDesc(UUID ownerId);
 
     // ── stolen flag ───────────────────────────────────────────────────────
@@ -45,6 +48,7 @@ public interface VehicleRepository extends JpaRepository<VehicleEntity, UUID> {
     void markFound(@Param("id") UUID id);
 
     /** All currently stolen vehicles — for officer dashboard. */
+    @EntityGraph(attributePaths = "owner")
     List<VehicleEntity> findByIsStolenTrueAndIsActiveTrue();
 
     // ── job / reporting queries ───────────────────────────────────────────
