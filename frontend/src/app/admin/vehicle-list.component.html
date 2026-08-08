@@ -1,0 +1,80 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Vehicles</h1>
+    <p class="admin-page-lede">Manage vehicle registrations, status, and ownership.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New vehicle</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search plate, VIN, make, model…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="vehicleType" [(ngModel)]="vehicleTypeFilter">
+    <option value="">All types</option>
+    <option *ngFor="let option of vehicleTypeOptions" [value]="option.value">{{ option.label }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="isStolen" [(ngModel)]="stolenFilter">
+    <option value="">Stolen: any</option>
+    <option value="true">Stolen</option>
+    <option value="false">Not stolen</option>
+  </select>
+  <select class="form-select form-select-sm" name="isActive" [(ngModel)]="activeFilter">
+    <option value="">All statuses</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No vehicles matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="transferOwnership(row)">
+      Transfer
+    </button>
+    <button class="btn btn-outline-warning btn-sm" type="button" (click)="confirmStolenAction(row)">
+      {{ row.isStolen ? 'Mark found' : 'Mark stolen' }}
+    </button>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="confirmDeregister(row)">
+      Deregister
+    </button>
+  </ng-template>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="!!deregisterTarget"
+  tone="danger"
+  title="Deregister this vehicle?"
+  [message]="deregisterMessage"
+  confirmLabel="Deregister"
+  (confirmed)="doDeregister()"
+  (cancelled)="cancelDeregister()"
+></app-confirm-dialog>
+
+<app-confirm-dialog
+  [open]="!!stolenActionTarget"
+  [tone]="stolenActionTarget?.markingStolen ? 'danger' : 'default'"
+  [title]="stolenActionTitle"
+  [message]="stolenActionMessage"
+  [confirmLabel]="stolenActionTarget?.markingStolen ? 'Mark stolen' : 'Mark found'"
+  (confirmed)="doStolenAction()"
+  (cancelled)="cancelStolenAction()"
+></app-confirm-dialog>

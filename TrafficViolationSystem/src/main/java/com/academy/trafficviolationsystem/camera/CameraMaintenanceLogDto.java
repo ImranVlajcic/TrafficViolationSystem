@@ -22,7 +22,7 @@ public class CameraMaintenanceLogDto {
     private String firmwareAfter;
     private String notes;
     private boolean isCompleted;
-    private Integer cameraId;
+    private Long cameraId;
     private UUID performedById;
     private String performedByUsername;
 }

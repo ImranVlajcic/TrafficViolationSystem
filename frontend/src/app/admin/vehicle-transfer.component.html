@@ -1,0 +1,67 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to vehicles
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">Transfer ownership</h1>
+<p class="admin-page-lede" *ngIf="vehicle">
+  {{ vehicle.licencePlate }} — {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})
+</p>
+
+<div *ngIf="loading" class="text-muted small">Loading vehicle…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<div class="transfer-panel-row" *ngIf="!loading && !loadError">
+  <section class="admin-panel">
+    <h2 class="admin-panel__title">New transfer</h2>
+
+    <form class="admin-form" (ngSubmit)="submit()">
+      <div class="admin-form__field">
+        <label for="newOwnerId">New owner (user ID)</label>
+        <input id="newOwnerId" class="form-control" name="newOwnerId" [(ngModel)]="newOwnerId" required />
+      </div>
+
+      <div class="admin-form__field">
+        <label for="transferDate">Transfer date</label>
+        <input
+          id="transferDate"
+          type="date"
+          class="form-control"
+          name="transferDate"
+          [(ngModel)]="transferDate"
+          required
+        />
+      </div>
+
+      <div class="admin-form__field">
+        <label for="notes">Notes</label>
+        <textarea id="notes" class="form-control" name="notes" rows="3" [(ngModel)]="notes"></textarea>
+      </div>
+
+      <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+      <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+        {{ submitting ? 'Transferring…' : 'Transfer ownership' }}
+      </button>
+    </form>
+  </section>
+
+  <section class="admin-panel">
+    <h2 class="admin-panel__title">Ownership history</h2>
+
+    <div *ngIf="historyLoading" class="text-muted small">Loading history…</div>
+    <div class="auth-alert auth-alert--error" *ngIf="historyError">{{ historyError }}</div>
+
+    <ul class="history-list" *ngIf="!historyLoading && history.length">
+      <li class="history-list__item" *ngFor="let entry of history">
+        <span class="history-list__date">{{ entry.transferDate | date }}</span>
+        <span class="history-list__owners">{{ entry.previousOwnerId }} → {{ entry.newOwnerId }}</span>
+        <span class="history-list__notes" *ngIf="entry.notes">{{ entry.notes }}</span>
+      </li>
+    </ul>
+
+    <div class="admin-placeholder-box" *ngIf="!historyLoading && !history.length && !historyError">
+      <p class="text-muted mb-0 small">No prior ownership transfers.</p>
+    </div>
+  </section>
+</div>

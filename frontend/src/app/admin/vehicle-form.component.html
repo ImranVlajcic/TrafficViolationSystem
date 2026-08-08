@@ -1,0 +1,135 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to vehicles
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New vehicle' : 'Edit vehicle' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading vehicle…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="licencePlate">Licence plate</label>
+    <input
+      id="licencePlate"
+      class="form-control"
+      name="licencePlate"
+      [(ngModel)]="licencePlate"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="vin">VIN</label>
+    <input
+      id="vin"
+      class="form-control"
+      name="vin"
+      [(ngModel)]="vin"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="ownerId">Owner (user ID)</label>
+    <input
+      id="ownerId"
+      class="form-control"
+      name="ownerId"
+      [(ngModel)]="ownerId"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="make">Make</label>
+    <input id="make" class="form-control" name="make" [(ngModel)]="make" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="model">Model</label>
+    <input id="model" class="form-control" name="model" [(ngModel)]="model" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="year">Year</label>
+    <input id="year" type="number" class="form-control" name="year" [(ngModel)]="year" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="color">Color</label>
+    <input id="color" class="form-control" name="color" [(ngModel)]="color" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="vehicleType">Vehicle type</label>
+    <select id="vehicleType" class="form-select" name="vehicleType" [(ngModel)]="vehicleType" required>
+      <option *ngFor="let option of vehicleTypeOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="fuelType">Fuel type</label>
+    <select id="fuelType" class="form-select" name="fuelType" [(ngModel)]="fuelType" required>
+      <option *ngFor="let option of fuelTypeOptions" [ngValue]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="enginceCc">Engine (cc)</label>
+    <input
+      id="enginceCc"
+      type="number"
+      class="form-control"
+      name="enginceCc"
+      [(ngModel)]="enginceCc"
+      [disabled]="mode === 'edit'"
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="registrationDate">Registration date</label>
+    <input
+      id="registrationDate"
+      type="date"
+      class="form-control"
+      name="registrationDate"
+      [(ngModel)]="registrationDate"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="registrationExpiry">Registration expires</label>
+    <input
+      id="registrationExpiry"
+      type="date"
+      class="form-control"
+      name="registrationExpiry"
+      [(ngModel)]="registrationExpiry"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field admin-form__field--checkbox" *ngIf="mode === 'edit'">
+    <label class="form-check-label" for="isActive">
+      <input id="isActive" type="checkbox" class="form-check-input" name="isActive" [(ngModel)]="isActive" />
+      Active
+    </label>
+  </div>
+
+  <div class="admin-form__field" *ngIf="mode === 'edit'">
+    <label>Stolen status</label>
+    <p class="mb-0">{{ isStolen ? 'Stolen' : 'Not stolen' }}</p>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create vehicle' : 'Save changes') }}
+  </button>
+</form>

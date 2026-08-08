@@ -91,7 +91,7 @@ public class CameraController implements BaseCRUDController<
     @Operation(summary = "Mark a scheduled maintenance entry as completed (ADMIN only)")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CameraMaintenanceLogDto>> completeMaintenance(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @PathVariable UUID logId,
             @CurrentUser UserPrincipal principal) {
         CameraMaintenanceLogDto dto = cameraService.completeMaintenance(id, logId, principal);

@@ -189,7 +189,7 @@ public class CameraService implements BaseCRUDService<
      */
     @Transactional
     @AuditAction(value = "COMPLETE_CAMERA_MAINTENANCE", entityClass = CameraMaintenanceLogEntity.class)
-    public CameraMaintenanceLogDto completeMaintenance(Integer cameraId, UUID logId,
+    public CameraMaintenanceLogDto completeMaintenance(Long cameraId, UUID logId,
                                                         UserPrincipal principal) {
         CameraMaintenanceLogEntity log = maintenanceRepository.findById(logId)
                 .orElseThrow(() -> new NotFoundException("Maintenance log " + logId + " not found"));

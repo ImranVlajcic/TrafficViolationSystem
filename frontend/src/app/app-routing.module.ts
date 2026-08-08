@@ -52,11 +52,18 @@ import { AppealReviewQueueComponent } from './officer/appeal-review-queue.compon
 import { AppealReviewDetailComponent } from './officer/appeal-review-detail.component';
 import { ReportListComponent } from './officer/report-list.component';
 import { ReportRequestFormComponent } from './officer/report-request-form.component';
+import { DriverListComponent } from './admin/driver-list.component';
+import { DriverFormComponent } from './admin/driver-form.component';
+import { VehicleListComponentAdmin } from './admin/vehicle-list.component';
+import { VehicleFormComponent } from './admin/vehicle-form.component';
+import { VehicleTransferComponent } from './admin/vehicle-transfer.component';
 
 // Real feature routes (defined explicitly below) instead of placeholders —
 // same pattern as CITIZEN_BUILT_PATHS/OFFICER_BUILT_PATHS.
 const ADMIN_BUILT_PATHS = [
   'users',
+  'drivers',
+  'vehicles',
   'cameras',
   'road-zones',
   'fine-rules',
@@ -65,7 +72,6 @@ const ADMIN_BUILT_PATHS = [
   'jobs',
   'analytics'
 ];
-
 const adminChildRoutes = ADMIN_NAV.flatMap((group) =>
   group.items
     .filter((item) => !ADMIN_BUILT_PATHS.includes(item.path))
@@ -126,6 +132,9 @@ const routes: Routes = [
       { path: 'users', component: UserListComponent, data: { title: 'Users', code: 'US' } },
       { path: 'users/new', component: UserFormComponent, data: { title: 'New user', code: 'US' } },
       { path: 'users/:id/edit', component: UserFormComponent, data: { title: 'Edit user', code: 'US' } },
+      { path: 'drivers', component: DriverListComponent, data: { title: 'Drivers', code: 'DR' } },
+      { path: 'drivers/new', component: DriverFormComponent, data: { title: 'New driver', code: 'DR' } },
+      { path: 'drivers/:id/edit', component: DriverFormComponent, data: { title: 'Edit driver', code: 'DR' } },
       { path: 'cameras', component: CameraListComponent, data: { title: 'Cameras', code: 'CM' } },
       { path: 'cameras/new', component: CameraFormComponent, data: { title: 'New camera', code: 'CM' } },
       { path: 'cameras/:id/edit', component: CameraFormComponent, data: { title: 'Edit camera', code: 'CM' } },
@@ -164,6 +173,14 @@ const routes: Routes = [
       { path: 'audit-logs', component: AuditLogListComponent, data: { title: 'Audit logs', code: 'AL' } },
       { path: 'jobs', component: JobListComponent, data: { title: 'Jobs', code: 'JB' } },
       { path: 'analytics', component: AnalyticsChartComponent, data: { title: 'Analytics', code: 'AN' } },
+      { path: 'vehicles', component: VehicleListComponentAdmin, data: { title: 'Vehicles', code: 'VH' } },
+      { path: 'vehicles/new', component: VehicleFormComponent, data: { title: 'New vehicle', code: 'VH' } },
+      { path: 'vehicles/:id/edit', component: VehicleFormComponent, data: { title: 'Edit vehicle', code: 'VH' } },
+      {
+        path: 'vehicles/:id/transfer-ownership',
+        component: VehicleTransferComponent,
+        data: { title: 'Transfer ownership', code: 'VH' }
+      },
       ...adminChildRoutes
     ]
   },

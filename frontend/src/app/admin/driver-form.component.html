@@ -1,0 +1,121 @@
+<button class="btn btn-outline-secondary btn-sm detail-back" type="button" (click)="cancel()">
+  ← Back to drivers
+</button>
+
+<p class="eyebrow">Admin</p>
+<h1 class="admin-page-title">{{ mode === 'create' ? 'New driver' : 'Edit driver' }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading driver…</div>
+<div class="auth-alert auth-alert--error" *ngIf="loadError">{{ loadError }}</div>
+
+<form class="admin-form" (ngSubmit)="submit()" *ngIf="!loading && !loadError">
+  <div class="admin-form__field">
+    <label for="licenceNumber">Licence number</label>
+    <input
+      id="licenceNumber"
+      class="form-control"
+      name="licenceNumber"
+      [(ngModel)]="licenceNumber"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="nationalId">National ID</label>
+    <input
+      id="nationalId"
+      class="form-control"
+      name="nationalId"
+      [(ngModel)]="nationalId"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="firstName">First name</label>
+    <input id="firstName" class="form-control" name="firstName" [(ngModel)]="firstName" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="lastName">Last name</label>
+    <input id="lastName" class="form-control" name="lastName" [(ngModel)]="lastName" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="dateOfBirth">Date of birth</label>
+    <input
+      id="dateOfBirth"
+      type="date"
+      class="form-control"
+      name="dateOfBirth"
+      [(ngModel)]="dateOfBirth"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="email">Email</label>
+    <input
+      id="email"
+      type="email"
+      class="form-control"
+      name="email"
+      [(ngModel)]="email"
+      [disabled]="mode === 'edit'"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="phoneNumber">Phone number</label>
+    <input id="phoneNumber" class="form-control" name="phoneNumber" [(ngModel)]="phoneNumber" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="adress">Address</label>
+    <input id="adress" class="form-control" name="adress" [(ngModel)]="adress" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="licenseCategory">License category</label>
+    <input id="licenseCategory" class="form-control" name="licenseCategory" [(ngModel)]="licenseCategory" required />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="licenseIssuedAt">License issued</label>
+    <input
+      id="licenseIssuedAt"
+      type="date"
+      class="form-control"
+      name="licenseIssuedAt"
+      [(ngModel)]="licenseIssuedAt"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="licenceExpiresAt">License expires</label>
+    <input
+      id="licenceExpiresAt"
+      type="date"
+      class="form-control"
+      name="licenceExpiresAt"
+      [(ngModel)]="licenceExpiresAt"
+      required
+    />
+  </div>
+
+  <div class="admin-form__field" *ngIf="mode === 'edit'">
+    <label>Status</label>
+    <p class="mb-0">{{ isSuspended ? 'Suspended' : 'Active' }}</p>
+  </div>
+
+  <div class="auth-alert auth-alert--error" *ngIf="submitError">{{ submitError }}</div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="!canSubmit">
+    {{ submitting ? 'Saving…' : (mode === 'create' ? 'Create driver' : 'Save changes') }}
+  </button>
+</form>

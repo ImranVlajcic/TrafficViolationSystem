@@ -60,6 +60,11 @@ import { AppealReviewDetailComponent } from './officer/appeal-review-detail.comp
 import { ReportListComponent } from './officer/report-list.component';
 import { ReportRequestFormComponent } from './officer/report-request-form.component';
 import { HeatmapComponent } from './admin/heatmap.component';
+import { DriverListComponent } from './admin/driver-list.component';
+import { DriverFormComponent } from './admin/driver-form.component';
+import { VehicleListComponentAdmin } from './admin/vehicle-list.component';
+import { VehicleFormComponent } from './admin/vehicle-form.component';
+import { VehicleTransferComponent } from './admin/vehicle-transfer.component';
 
 @NgModule({
   declarations: [
@@ -114,7 +119,12 @@ import { HeatmapComponent } from './admin/heatmap.component';
     AppealReviewDetailComponent,
     ReportListComponent,
     ReportRequestFormComponent,
-    HeatmapComponent
+    HeatmapComponent,
+    DriverListComponent,
+    DriverFormComponent,
+    VehicleListComponentAdmin,
+    VehicleFormComponent,
+    VehicleTransferComponent,
   ],
   imports: [
     BrowserModule,

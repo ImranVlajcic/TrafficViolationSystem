@@ -1,0 +1,45 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1 class="admin-page-title">Drivers</h1>
+    <p class="admin-page-lede">Manage driver records and license details.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" type="button" (click)="createNew()">New driver</button>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search licence #, national ID, name…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="isSuspended" [(ngModel)]="suspendedFilter">
+    <option value="">All statuses</option>
+    <option value="true">Suspended</option>
+    <option value="false">Active</option>
+  </select>
+  <select class="form-select form-select-sm" name="licenseExpired" [(ngModel)]="expiredFilter">
+    <option value="">All licences</option>
+    <option value="true">Expired</option>
+    <option value="false">Valid</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No drivers matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="edit(row)">Edit</button>
+  </ng-template>
+</app-data-table>
