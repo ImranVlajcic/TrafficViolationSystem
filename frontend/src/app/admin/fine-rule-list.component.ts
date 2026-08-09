@@ -47,7 +47,7 @@ export class FineRuleListComponent implements OnInit {
   loading = false;
   error = '';
 
-  page = 1;
+  page = 0;
   hasMore = false;
   count = 0;
 
@@ -115,7 +115,7 @@ export class FineRuleListComponent implements OnInit {
   }
 
   onFilterSubmit(): void {
-    this.page = 1;
+    this.page = 0;
     this.load();
   }
 

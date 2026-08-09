@@ -3,10 +3,7 @@ package com.academy.trafficviolationsystem.fine;
 import com.academy.trafficviolationsystem.audit.AuditAction;
 import com.academy.trafficviolationsystem.core.exceptions.BadRequestException;
 import com.academy.trafficviolationsystem.core.exceptions.NotFoundException;
-import com.academy.trafficviolationsystem.core.exceptions.fine.FineAlreadyCancelledException;
-import com.academy.trafficviolationsystem.core.exceptions.fine.FineAlreadyPaidException;
-import com.academy.trafficviolationsystem.core.exceptions.fine.FineCancelledException;
-import com.academy.trafficviolationsystem.core.exceptions.fine.FineNotDisputableException;
+import com.academy.trafficviolationsystem.core.exceptions.fine.*;
 import com.academy.trafficviolationsystem.core.security.UserPrincipal;
 import com.academy.trafficviolationsystem.core.services.BaseService;
 import com.academy.trafficviolationsystem.driver.DriverEntity;
@@ -42,7 +39,9 @@ import java.util.UUID;
  * there is no PUT /api/fines/{id} for general updates.
  *
  * Key operations:
- *   onViolationConfirmed     — @EventListener, auto-creates FineEntity
+ *   issueFineForViolation    — called directly by ViolationWorkflowMediator
+ *                               (NOT a Spring @EventListener) to auto-create
+ *                               a FineEntity for a confirmed violation
  *   cancel(id, principal)    — ADMIN/OFFICER cancels a fine
  *   markDisputed(id)         — called by AppealService
  *   reinstateAfterRejection  — called by AppealService on appeal rejection
@@ -53,9 +52,10 @@ import java.util.UUID;
  *   ViolationService.closeViolation() — closes violation when fine is paid
  *   DriverService.removePenaltyPoints() — reverses points on cancellation
  *
- * Fine issuance itself (points, suspension, notifications, back-link to
- * the violation) is orchestrated by ViolationWorkflowMediator, not here —
- * see issueFineForViolation().
+ * Fine issuance itself (linking back to the violation, points, suspension,
+ * notifications, PDF generation) is orchestrated by
+ * ViolationWorkflowMediatorImpl, not here — see issueFineForViolation(),
+ * which is intentionally "pure": it only builds and saves the FineEntity.
  */
 @Service
 @Transactional
@@ -63,7 +63,6 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
 
     private final FineRepository       fineRepository;
     private final FineMapper           fineMapper;
-    private final FinePdfService       finePdfService;
     private final FineRuleService      fineRuleService;
     private final DriverService        driverService;
     private final DriverRepository     driverRepository;
@@ -73,7 +72,6 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
 
     public FineService(FineRepository fineRepository,
                        FineMapper fineMapper,
-                       FinePdfService finePdfService,
                        FineRuleService fineRuleService,
                        DriverService driverService,
                        DriverRepository driverRepository,
@@ -82,7 +80,6 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
                        EntityManager entityManager) {
         this.fineRepository      = fineRepository;
         this.fineMapper          = fineMapper;
-        this.finePdfService      = finePdfService;
         this.fineRuleService     = fineRuleService;
         this.driverService       = driverService;
         this.driverRepository    = driverRepository;
@@ -103,8 +100,11 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
     /**
      * Builds and persists a FineEntity for a confirmed violation.
      * Pure fine-issuance — does not touch the driver or the violation's
-     * own fields. Called exclusively by ViolationWorkflowMediator in
-     * response to ViolationConfirmedEvent.
+     * own fields, and does not trigger the PDF, penalty points, or
+     * notifications. Called exclusively by ViolationWorkflowMediatorImpl in
+     * response to ViolationConfirmedEvent, which orchestrates those steps
+     * (linkFine → applyPenaltyPoints → notifications → generateFinePdf)
+     * after this method returns.
      *
      * @return empty if a fine already exists for this violation (guards
      *         against duplicate issuance if the event fires twice)
@@ -244,6 +244,12 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
         if (fine.getStatus() == FineStatus.CANCELLED) {
             throw new FineCancelledException(fine.getFineNumber());
         }
+        if (fine.getStatus() == FineStatus.DISPUTED) {
+            // Per the FineStatus state machine, payment is suspended while
+            // an appeal is under review — it must be reinstated to UNPAID
+            // (rejected) or moved to CANCELLED (approved) before it can be paid.
+            throw new FineDisputedException(fine.getFineNumber());
+        }
 
         FineAmountComponent amount = new BaseFineAmount(
                 fine.getAmount(), BigDecimal.ZERO, fine.getSurchargeAmount());
@@ -303,6 +309,24 @@ public class FineService implements BaseService<FineEntity, FineDto, FineSearchO
     public FineDto getFineWithDetails(UUID fineId) {
         FineEntity fine = findEntityById(fineId);
         return toDtoWithViolationRef(fine);
+    }
+
+    /**
+     * Fines for the citizen linked to the given UserEntity id — backs
+     * GET /api/fines/my. Resolves the caller's DriverEntity via their
+     * linked userId and delegates to getForDriver().
+     *
+     * NOTE: assumes DriverRepository exposes findByUserId(UUID); this
+     * matches DriverEntity.userId in the entity reference doc but wasn't
+     * visible in the uploaded fine/ module — verify the method exists on
+     * your actual DriverRepository (add it if it doesn't).
+     */
+    @Transactional(readOnly = true)
+    public List<FineDto> getMyFines(UUID userId) {
+        DriverEntity driver = driverRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "No driver profile is linked to this account"));
+        return getForDriver(driver.getId());
     }
 
     // ── private helpers ───────────────────────────────────────────────────

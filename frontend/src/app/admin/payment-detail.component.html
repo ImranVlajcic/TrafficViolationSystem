@@ -1,0 +1,77 @@
+<p class="eyebrow">Finance</p>
+<h1 class="admin-page-title" *ngIf="payment">{{ payment.transactionId }}</h1>
+
+<div *ngIf="loading" class="text-muted small">Loading payment…</div>
+<div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+
+<section class="officer-panel" *ngIf="payment">
+  <p class="officer-panel__subtitle">
+    Status: <app-status-badge [status]="payment.status"></app-status-badge>
+  </p>
+
+  <dl class="appeal-review-fields">
+    <dt>Fine</dt>
+    <dd class="text-mono">{{ payment.fineId }}</dd>
+
+    <dt>Paid by</dt>
+    <dd class="text-mono">{{ payment.paidById }}</dd>
+
+    <dt>Amount</dt>
+    <dd>{{ payment.amount.toFixed(2) }} {{ payment.currency }}</dd>
+
+    <dt>Method</dt>
+    <dd>{{ payment.method }}</dd>
+
+    <dt>Paid at</dt>
+    <dd>{{ payment.paidAt ? (payment.paidAt | date : 'medium') : '—' }}</dd>
+
+    <dt>Notes</dt>
+    <dd>{{ payment.notes || '—' }}</dd>
+
+    <dt>Gateway response</dt>
+    <dd>{{ payment.gatewayResponse || '—' }}</dd>
+  </dl>
+
+  <div class="auth-alert auth-alert--error" *ngIf="downloadError">{{ downloadError }}</div>
+
+  <div class="payment-detail-actions">
+    <button
+      class="btn btn-outline-secondary"
+      type="button"
+      [disabled]="!canDownloadReceipt || downloading"
+      (click)="downloadReceipt()"
+    >
+      {{ downloading ? 'Downloading…' : (canDownloadReceipt ? 'Download receipt' : 'Receipt not ready') }}
+    </button>
+    <button class="btn btn-outline-secondary" type="button" (click)="back()">Back to list</button>
+  </div>
+</section>
+
+<section class="officer-panel" *ngIf="payment">
+  <h2 class="officer-panel__title">Other attempts for this fine</h2>
+
+  <div *ngIf="relatedLoading" class="text-muted small">Loading…</div>
+  <div class="auth-alert auth-alert--error" *ngIf="relatedError">{{ relatedError }}</div>
+  <p class="text-muted small" *ngIf="!relatedLoading && !relatedError && relatedPayments.length === 0">
+    No other payment attempts recorded for this fine.
+  </p>
+
+  <table class="table" *ngIf="!relatedLoading && relatedPayments.length > 0">
+    <thead>
+      <tr>
+        <th>Transaction</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th>Paid</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of relatedPayments" (click)="openRelated(p)" class="clickable-row">
+        <td class="text-mono">{{ p.transactionId }}</td>
+        <td>{{ p.method }}</td>
+        <td><app-status-badge [status]="p.status"></app-status-badge></td>
+        <td>{{ p.paidAt ? (p.paidAt | date) : '—' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>

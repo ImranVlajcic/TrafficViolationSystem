@@ -12,8 +12,11 @@ import com.academy.trafficviolationsystem.violation.ViolationService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Sole listener for ViolationConfirmedEvent. Previously this logic lived
@@ -30,7 +33,8 @@ import java.util.Optional;
  *      suspension was triggered
  *   4. NotificationService sends the fine-issued notice, and the
  *      suspension notice if one was created
- *   5. FinePdfService generates the PDF async
+ *   5. FinePdfService generates the PDF async — deferred until after this
+ *      transaction commits (see note on that call below)
  */
 @Service
 public class ViolationWorkflowMediatorImpl implements ViolationWorkflowMediator {
@@ -80,6 +84,27 @@ public class ViolationWorkflowMediatorImpl implements ViolationWorkflowMediator 
             notificationService.sendSuspensionNotification(driver, penaltyResult.suspension());
         }
 
-        finePdfService.generateFinePdf(fine);
+        // generateFinePdf() runs on the pdfExecutor thread via @Async, and
+        // re-fetches the fine by id in its own transaction (see
+        // FinePdfService javadoc — this avoids a LazyInitializationException
+        // on fine.getDriver() when reading the entity from a different
+        // thread's session). Since this whole method is @Transactional,
+        // firing that async call right here — before the transaction
+        // commits — risks the PDF thread racing the commit and finding
+        // nothing, or finding a stale pre-linkFine/pre-penalty-points view.
+        // Deferring to afterCommit() avoids both. Falls back to firing
+        // immediately if there's no active transaction synchronization
+        // (e.g. a test invoking this listener directly, outside a tx).
+        UUID fineId = fine.getId();
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    finePdfService.generateFinePdf(fineId);
+                }
+            });
+        } else {
+            finePdfService.generateFinePdf(fineId);
+        }
     }
 }

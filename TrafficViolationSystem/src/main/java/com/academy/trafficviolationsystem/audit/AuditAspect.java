@@ -17,7 +17,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -70,13 +69,17 @@ public class AuditAspect {
     private final AuditLogRepository auditLogRepository;
     private final ObjectMapper       objectMapper;
     private final EntityManager      entityManager;
+    private final AuditWriter auditWriter;
+    private final AuditSnapshotReader auditSnapshotReader;
 
     public AuditAspect(AuditLogRepository auditLogRepository,
                        ObjectMapper objectMapper,
-                       EntityManager entityManager) {
+                       EntityManager entityManager, AuditWriter auditWriter, AuditSnapshotReader auditSnapshotReader) {
         this.auditLogRepository = auditLogRepository;
         this.objectMapper       = objectMapper;
         this.entityManager      = entityManager;
+        this.auditWriter = auditWriter;
+        this.auditSnapshotReader = auditSnapshotReader;
     }
 
     /**
@@ -127,7 +130,7 @@ public class AuditAspect {
 
         // ── extract entity ID from first UUID/Integer/Long argument ────────
         Object rawEntityId = extractRawEntityId(joinPoint.getArgs());
-        UUID entityId = toStorableEntityId(rawEntityId, entityType);
+        UUID entityId = AuditIdCodec.toStorableEntityId(rawEntityId, entityType);
         // NOTE: entityId may be back-filled after proceed() for create-style
         // methods, where no ID argument exists until the entity is persisted.
 
@@ -139,7 +142,8 @@ public class AuditAspect {
         String beforeSnapshot = null;
         if (captureSnap && rawEntityId != null && annotation.entityClass() != Object.class) {
             try {
-                Object beforeEntity = entityManager.find(annotation.entityClass(), rawEntityId);
+                //Object beforeEntity = entityManager.find(annotation.entityClass(), rawEntityId);
+                Object beforeEntity = auditSnapshotReader.snapshot(annotation.entityClass(), rawEntityId);
                 beforeSnapshot = safeSerialize("before", beforeEntity);
             } catch (Exception e) {
                 log.debug("Could not load before-snapshot for {}/{}: {}",
@@ -176,7 +180,7 @@ public class AuditAspect {
         if (entityId == null && failure == null && result != null) {
             Object resultId = extractIdFromResult(result);
             if (resultId != null) {
-                entityId = toStorableEntityId(resultId, entityType);
+                entityId = AuditIdCodec.toStorableEntityId(resultId, entityType);
             }
         }
 
@@ -216,7 +220,8 @@ public class AuditAspect {
             auditLog.setDescription(buildDescription(
                     action, entityType, entityId, finalActorUsername, finalFailure));
             auditLog.setOccurredAt(LocalDateTime.now());
-            auditLogRepository.save(auditLog);
+            //auditLogRepository.save(auditLog);
+            auditWriter.write(auditLog);
         } catch (Exception e) {
             // NEVER let audit failure break the business operation
             log.error("Failed to write audit log for action {} on {}/{}: {}",
@@ -262,20 +267,6 @@ public class AuditAspect {
             log.debug("Could not extract id from result via reflection: {}", e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Converts a raw entity ID into the UUID stored in audit_log.entity_id.
-     * UUID PKs pass through unchanged. Non-UUID PKs (e.g. CameraEntity's
-     * Integer id) are deterministically converted so entity_id stays
-     * populated — same value every time for the same (entityType, id) pair,
-     * but not equal to any "real" UUID elsewhere in the system.
-     */
-    private UUID toStorableEntityId(Object rawId, String entityType) {
-        if (rawId == null) return null;
-        if (rawId instanceof UUID uuid) return uuid;
-        String seed = (entityType != null ? entityType : "entity") + "-" + rawId;
-        return UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8));
     }
 
     private String safeSerialize(String phase, Object obj) {

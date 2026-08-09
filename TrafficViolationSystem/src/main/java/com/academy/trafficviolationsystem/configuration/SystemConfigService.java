@@ -64,6 +64,7 @@ public class SystemConfigService implements BaseCRUDService<
      */
     @Override
     @AuditAction(value = "UPDATE_SYSTEM_CONFIG", entityClass = SystemConfigEntity.class)
+    @CacheEvict(value = "system-config", allEntries = true)
     public SystemConfigDto update(Integer id, SystemConfigUpdateRequest request) {
         return BaseCRUDService.super.update(id, request);
     }
@@ -79,7 +80,6 @@ public class SystemConfigService implements BaseCRUDService<
      *  2. configValue must parse correctly for the entity's declared dataType.
      */
     @Override
-    @CacheEvict(value = "system-config", allEntries = true)
     public void beforeUpdate(SystemConfigUpdateRequest request, SystemConfigEntity entity) {
         if (!entity.isEditable()) {
             throw new ConfigReadOnlyException(entity.getConfigKey());
@@ -113,7 +113,7 @@ public class SystemConfigService implements BaseCRUDService<
      * Throws NotFoundException if the key does not exist in the DB.
      * Throws IllegalStateException if the stored dataType is not INTEGER.
      */
-    @Cacheable(value = "system-config", key = "#key")
+    @Cacheable(value = "system-config", key = "#root.methodName + ':' + #key")
     @Transactional(readOnly = true)
     public Integer getInt(String key) {
         SystemConfigEntity entity = findByKeyOrThrow(key);
@@ -121,13 +121,13 @@ public class SystemConfigService implements BaseCRUDService<
         return Integer.parseInt(entity.getConfigValue().trim());
     }
 
-    @Cacheable(value = "system-config", key = "#key")
+    @Cacheable(value = "system-config", key = "#root.methodName + ':' + #key")
     @Transactional(readOnly = true)
     public String getString(String key) {
         return findByKeyOrThrow(key).getConfigValue();
     }
 
-    @Cacheable(value = "system-config", key = "#key")
+    @Cacheable(value = "system-config", key = "#root.methodName + ':' + #key")
     @Transactional(readOnly = true)
     public Boolean getBoolean(String key) {
         SystemConfigEntity entity = findByKeyOrThrow(key);
@@ -135,7 +135,7 @@ public class SystemConfigService implements BaseCRUDService<
         return Boolean.parseBoolean(entity.getConfigValue().trim());
     }
 
-    @Cacheable(value = "system-config", key = "#key")
+    @Cacheable(value = "system-config", key = "#root.methodName + ':' + #key")
     @Transactional(readOnly = true)
     public BigDecimal getDecimal(String key) {
         SystemConfigEntity entity = findByKeyOrThrow(key);
@@ -144,7 +144,7 @@ public class SystemConfigService implements BaseCRUDService<
     }
 
     /** Returns raw JSON string — caller deserialises with ObjectMapper. */
-    @Cacheable(value = "system-config", key = "#key")
+    @Cacheable(value = "system-config", key = "#root.methodName + ':' + #key")
     @Transactional(readOnly = true)
     public String getJson(String key) {
         SystemConfigEntity entity = findByKeyOrThrow(key);

@@ -65,6 +65,13 @@ import { DriverFormComponent } from './admin/driver-form.component';
 import { VehicleListComponentAdmin } from './admin/vehicle-list.component';
 import { VehicleFormComponent } from './admin/vehicle-form.component';
 import { VehicleTransferComponent } from './admin/vehicle-transfer.component';
+import { ViolationListComponent as AdminViolationListComponent } from './admin/violation-list.component';
+import { AdminFineListComponent } from './admin/fine-list.component';
+import { AdminFineDetailComponent } from './admin/fine-detail.component';
+import { AdminAppealListComponent } from './admin/appeal-list.component';
+import { AdminAppealDetailComponent } from './admin/appeal-detail.component';
+import { AdminPaymentListComponent } from './admin/payment-list.component';
+import { AdminPaymentDetailComponent } from './admin/payment-detail.component';
 
 @NgModule({
   declarations: [
@@ -125,6 +132,13 @@ import { VehicleTransferComponent } from './admin/vehicle-transfer.component';
     VehicleListComponentAdmin,
     VehicleFormComponent,
     VehicleTransferComponent,
+    AdminViolationListComponent,
+    AdminFineListComponent,
+    AdminFineDetailComponent,
+    AdminAppealListComponent,
+    AdminAppealDetailComponent,
+    AdminPaymentListComponent,
+    AdminPaymentDetailComponent,
   ],
   imports: [
     BrowserModule,

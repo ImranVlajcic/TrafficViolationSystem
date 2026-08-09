@@ -1,0 +1,46 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Enforcement</p>
+    <h1 class="admin-page-title">Violations</h1>
+    <p class="admin-page-lede">All recorded violations, across every status.</p>
+  </div>
+</div>
+
+<form class="d-flex gap-2 flex-wrap mb-3" (ngSubmit)="onFilterSubmit()">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    name="search"
+    placeholder="Search reference #…"
+    [(ngModel)]="search"
+  />
+  <select class="form-select form-select-sm" name="status" [(ngModel)]="statusFilter">
+    <option value="">All statuses</option>
+    <option *ngFor="let s of statusOptions" [value]="s">{{ humanize(s) }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="violationType" [(ngModel)]="violationTypeFilter">
+    <option value="">All types</option>
+    <option *ngFor="let t of violationTypeOptions" [value]="t">{{ humanize(t) }}</option>
+  </select>
+  <select class="form-select form-select-sm" name="detectionMethod" [(ngModel)]="detectionMethodFilter">
+    <option value="">All detection methods</option>
+    <option *ngFor="let d of detectionMethodOptions" [value]="d">{{ humanize(d) }}</option>
+  </select>
+  <button class="btn btn-outline-secondary btn-sm" type="submit">Filter</button>
+</form>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [loading]="loading"
+  [error]="error"
+  [page]="page"
+  [hasMore]="hasMore"
+  [count]="count"
+  emptyMessage="No violations matched your filters."
+  (pageChange)="onPageChange($event)"
+>
+  <ng-template #rowActions let-row>
+    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="view(row)">View</button>
+  </ng-template>
+</app-data-table>

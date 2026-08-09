@@ -6,6 +6,8 @@ import com.academy.trafficviolationsystem.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -47,6 +49,8 @@ import java.time.LocalDateTime;
         @Index(name = "idx_payment_paidby", columnList = "paid_by_id")
     }
 )
+@SQLDelete(sql = "UPDATE payments SET deleted = NOW() WHERE id = ?")
+@SQLRestriction("deleted IS NULL")
 public class PaymentEntity extends UUIDBaseEntity {
 
     // ── transaction reference ─────────────────────────────────────────────

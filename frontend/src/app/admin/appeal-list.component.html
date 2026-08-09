@@ -1,0 +1,59 @@
+<p class="eyebrow">Finance</p>
+<h1 class="admin-page-title">Appeals</h1>
+<p class="admin-page-lede">All appeals across every status, newest activity first.</p>
+
+<form class="admin-form admin-filter-form" (ngSubmit)="applyFilters()">
+  <div class="admin-form__field">
+    <label for="filterStatus">Status</label>
+    <select id="filterStatus" class="form-select" [(ngModel)]="filters.status" name="filterStatus">
+      <option [ngValue]="undefined">All</option>
+      <option *ngFor="let s of statusOptions" [ngValue]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterDriverId">Driver ID</label>
+    <input id="filterDriverId" class="form-control" [(ngModel)]="filters.driverId" name="filterDriverId" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterViolationId">Violation ID</label>
+    <input id="filterViolationId" class="form-control" [(ngModel)]="filters.violationId" name="filterViolationId" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterReviewedById">Reviewed by</label>
+    <input id="filterReviewedById" class="form-control" [(ngModel)]="filters.reviewedById" name="filterReviewedById" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterFromDate">From</label>
+    <input id="filterFromDate" type="date" class="form-control" [(ngModel)]="filters.fromDate" name="filterFromDate" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterToDate">To</label>
+    <input id="filterToDate" type="date" class="form-control" [(ngModel)]="filters.toDate" name="filterToDate" />
+  </div>
+
+  <div class="admin-form__actions">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <button class="btn btn-outline-secondary" type="button" (click)="resetFilters()">Reset</button>
+  </div>
+</form>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="appeals"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No appeals match these filters."
+  (rowClick)="openAppeal($event)"
+>
+</app-data-table>
+
+<div class="admin-pager" *ngIf="page > 0 || hasMore">
+  <button class="btn btn-outline-secondary" type="button" [disabled]="page <= 0" (click)="prevPage()">Previous</button>
+  <span class="admin-pager__label">Page {{ page + 1 }} ({{ totalElements }} total)</span>
+  <button class="btn btn-outline-secondary" type="button" [disabled]="!hasMore" (click)="nextPage()">Next</button>
+</div>

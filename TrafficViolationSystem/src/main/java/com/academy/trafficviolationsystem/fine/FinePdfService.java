@@ -1,5 +1,6 @@
 package com.academy.trafficviolationsystem.fine;
 
+import com.academy.trafficviolationsystem.core.exceptions.NotFoundException;
 import com.academy.trafficviolationsystem.core.exceptions.infrastructure.PdfGenerationException;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * Generates official fine PDF documents using iText 7.
@@ -71,10 +73,20 @@ public class FinePdfService {
     /**
      * Generates the official fine PDF and persists its path.
      * Runs on the pdfExecutor thread pool — never blocks the request thread.
+     *
+     * Takes a fineId rather than a FineEntity on purpose: the entity handed
+     * in by the caller belongs to the caller's persistence context/session,
+     * which does not survive the hop onto the async executor's thread.
+     * Accessing a lazy association (fine.getDriver()) on that thread would
+     * throw LazyInitializationException. Re-fetching here opens a fresh
+     * transaction/session on the executor thread instead.
      */
     @Async("pdfExecutor")
     @Transactional
-    public void generateFinePdf(FineEntity fine) {
+    public void generateFinePdf(UUID fineId) {
+        FineEntity fine = fineRepository.findById(fineId)
+                .orElseThrow(() -> new NotFoundException("Fine " + fineId + " not found"));
+
         try {
             Path outputDir = Paths.get(pdfOutputDir, "fines");
             Files.createDirectories(outputDir);

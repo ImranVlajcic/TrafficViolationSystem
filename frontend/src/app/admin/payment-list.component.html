@@ -1,0 +1,64 @@
+<p class="eyebrow">Finance</p>
+<h1 class="admin-page-title">Payments</h1>
+<p class="admin-page-lede">Every payment attempt recorded in the system, read-only.</p>
+
+<form class="admin-form admin-filter-form" (ngSubmit)="applyFilters()">
+  <div class="admin-form__field">
+    <label for="filterFineId">Fine ID</label>
+    <input id="filterFineId" class="form-control" [(ngModel)]="filters.fineId" name="filterFineId" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterStatus">Status</label>
+    <select id="filterStatus" class="form-select" [(ngModel)]="filters.status" name="filterStatus">
+      <option [ngValue]="undefined">All</option>
+      <option *ngFor="let s of statusOptions" [ngValue]="s">{{ statusLabels[s] }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterMethod">Method</label>
+    <select id="filterMethod" class="form-select" [(ngModel)]="filters.method" name="filterMethod">
+      <option [ngValue]="undefined">All</option>
+      <option *ngFor="let m of methodOptions" [ngValue]="m">{{ methodLabels[m] }}</option>
+    </select>
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterPaidById">Paid by</label>
+    <input id="filterPaidById" class="form-control" [(ngModel)]="filters.paidById" name="filterPaidById" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterFromDate">From</label>
+    <input id="filterFromDate" type="date" class="form-control" [(ngModel)]="filters.fromDate" name="filterFromDate" />
+  </div>
+
+  <div class="admin-form__field">
+    <label for="filterToDate">To</label>
+    <input id="filterToDate" type="date" class="form-control" [(ngModel)]="filters.toDate" name="filterToDate" />
+  </div>
+
+  <div class="admin-form__actions">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <button class="btn btn-outline-secondary" type="button" (click)="resetFilters()">Reset</button>
+  </div>
+</form>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="payments"
+  [loading]="loading"
+  [error]="error"
+  emptyMessage="No payments match these filters."
+  (rowClick)="openPayment($event)"
+>
+</app-data-table>
+
+<div class="admin-pager" *ngIf="page > 0 || hasMore">
+  <button class="btn btn-outline-secondary" type="button" [disabled]="page <= 0" (click)="prevPage()">Previous</button>
+  <span class="admin-pager__label">
+    Page {{ page + 1 }}<ng-container *ngIf="totalElements !== null"> ({{ totalElements }} total)</ng-container>
+  </span>
+  <button class="btn btn-outline-secondary" type="button" [disabled]="!hasMore" (click)="nextPage()">Next</button>
+</div>

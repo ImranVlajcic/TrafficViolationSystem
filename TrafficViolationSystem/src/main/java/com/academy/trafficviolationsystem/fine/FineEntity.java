@@ -16,6 +16,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,7 +52,10 @@ import java.util.UUID;
  *
  * PDF generation:
  *   pdfPath is null until FinePdfService generates the document.
- *   The @Async pdfExecutor handles this after afterInsert().
+ *   ViolationWorkflowMediatorImpl.onViolationConfirmed() calls
+ *   FinePdfService.generateFinePdf() (which runs on the @Async pdfExecutor
+ *   pool) as the last step of the fine-issuance workflow, after linking,
+ *   penalty points, and notifications.
  */
 @Getter
 @Setter
@@ -68,6 +73,14 @@ import java.util.UUID;
         @Index(name = "idx_fine_issued",  columnList = "issued_at DESC")
     }
 )
+// Enforce soft delete at the DB level: physical DELETE issued by Hibernate is
+// rewritten to a deleted_at stamp, and every SELECT for this entity is
+// transparently filtered to exclude soft-deleted rows. Without these two
+// annotations, @PreRemove-only soft delete only updates the in-memory
+// instance and Hibernate still issues a physical DELETE (confirmed recurring
+// gap across Core/User/Driver/Camera/Vehicle — fixed here for Fine).
+@SQLDelete(sql = "UPDATE fines SET deleted = now() WHERE id = ?")
+@SQLRestriction("deleted IS NULL")
 public class FineEntity extends UUIDBaseEntity {
 
     // ── reference ─────────────────────────────────────────────────────────

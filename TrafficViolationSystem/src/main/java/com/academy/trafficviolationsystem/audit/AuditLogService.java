@@ -1,5 +1,6 @@
 package com.academy.trafficviolationsystem.audit;
 
+import com.academy.trafficviolationsystem.camera.CameraEntity;
 import com.academy.trafficviolationsystem.core.services.BaseService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -102,5 +103,14 @@ public class AuditLogService implements BaseService<
     public List<AuditLogDto> getForActor(UUID actorId) {
         return auditLogMapper.toDtoList(
             auditLogRepository.findByActorIdOrderByOccurredAtDesc(actorId));
+    }
+
+    public List<AuditLogDto> getForCamera(Integer cameraId) {
+        UUID entityId = AuditIdCodec.toStorableEntityId(
+                cameraId,
+                CameraEntity.class.getSimpleName()
+        );
+
+        return getForEntity(CameraEntity.class.getSimpleName(), entityId);
     }
 }

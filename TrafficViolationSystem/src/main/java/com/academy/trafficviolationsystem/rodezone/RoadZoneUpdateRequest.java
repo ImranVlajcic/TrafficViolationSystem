@@ -32,10 +32,27 @@ public class RoadZoneUpdateRequest {
 
     private String geoJsonBoundary;
 
-    @AssertTrue(message = "Zone must have either a circular shape (radius + center coordinates) or a polygon (geoJsonBoundary), not both or neither")
-    private boolean isShapeValid() {
-        boolean hasCircle = radiusMeters != null && centerLatitude != null && centerLongitude != null;
-        boolean hasPolygon = geoJsonBoundary != null && !geoJsonBoundary.isBlank();
-        return hasCircle ^ hasPolygon; // exactly one must be true
+    @AssertTrue(message = "Zone must have either a circular shape or a polygon, but not both.")
+    public boolean isShapeValid() {
+        boolean noShapeFields =
+                radiusMeters == null
+                        && centerLatitude == null
+                        && centerLongitude == null
+                        && geoJsonBoundary == null;
+
+        if (noShapeFields) {
+            return true;
+        }
+
+        boolean hasCompleteCircle =
+                radiusMeters != null
+                        && centerLatitude != null
+                        && centerLongitude != null;
+
+        boolean hasPolygon =
+                geoJsonBoundary != null
+                        && !geoJsonBoundary.isBlank();
+
+        return hasCompleteCircle ^ hasPolygon;
     }
 }

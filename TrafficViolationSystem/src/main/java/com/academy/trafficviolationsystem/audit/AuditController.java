@@ -76,4 +76,10 @@ public class AuditController implements BaseController<
         List<AuditLogDto> actions = auditLogService.getForActor(userId);
         return ResponseEntity.ok(ApiResponse.ok(actions));
     }
+
+    @GetMapping("/entity/CameraEntity/by-camera/{cameraId}")
+    public List<AuditLogDto> getForCamera(
+            @PathVariable Integer cameraId) {
+        return auditLogService.getForCamera(cameraId);
+    }
 }

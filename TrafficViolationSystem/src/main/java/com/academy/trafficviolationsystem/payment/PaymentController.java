@@ -15,7 +15,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,8 +38,8 @@ import java.util.UUID;
  * invokes the gateway simulator, not a generic mapper-based insert).
  *
  * Endpoints:
- *   GET  /api/payments              → search (BaseController — inherited)
- *   GET  /api/payments/{id}         → findById (BaseController — inherited)
+ *   GET  /api/payments              → search (ADMIN/OFFICER only — see note on search() override)
+ *   GET  /api/payments/{id}         → findById (any authenticated user; citizens limited to own payments)
  *   POST /api/payments              → pay a fine (all authenticated roles)
  *   GET  /api/payments/{id}/receipt → stream receipt PDF
  *   GET  /api/payments/fine/{fineId}→ all attempts for a fine (OFFICER/ADMIN)
@@ -64,10 +66,10 @@ public class PaymentController implements BaseController<
 
     @PostMapping
     @Operation(
-        summary = "Pay a fine",
-        description = "Submits a payment against a fine. Amount is taken from fine.totalDue — " +
-                      "never from the request body. Returns the transaction outcome immediately. " +
-                      "Receipt PDF is generated asynchronously — poll receiptReady on the DTO."
+            summary = "Pay a fine",
+            description = "Submits a payment against a fine. Amount is taken from fine.totalDue — " +
+                    "never from the request body. Returns the transaction outcome immediately. " +
+                    "Receipt PDF is generated asynchronously — poll receiptReady on the DTO."
     )
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PaymentDto>> pay(
@@ -92,9 +94,9 @@ public class PaymentController implements BaseController<
 
     @GetMapping("/{id}/receipt")
     @Operation(
-        summary = "Download the payment receipt PDF",
-        description = "Returns HTTP 404 if the PDF is not yet ready. " +
-                      "Check receiptReady = true on the payment DTO before calling this endpoint."
+            summary = "Download the payment receipt PDF",
+            description = "Returns HTTP 404 if the PDF is not yet ready. " +
+                    "Check receiptReady = true on the payment DTO before calling this endpoint."
     )
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadReceipt(
@@ -124,6 +126,55 @@ public class PaymentController implements BaseController<
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"receipt-" + payment.getTransactionId() + ".pdf\"")
                 .body(new FileSystemResource(file));
+    }
+
+    // ── generic list/find — restricted, see Authorisation note below ───────
+
+    /**
+     * SECURITY FIX: BaseController's default findById()/search() previously
+     * had no role restriction on this controller (no class-level
+     * @PreAuthorize, no override here), unlike every other scoped endpoint
+     * in this class. That left GET /api/payments and GET /api/payments/{id}
+     * reachable by any authenticated user, including CITIZEN — e.g. a
+     * citizen could pass ?paidById=<someone-else> and read another driver's
+     * transaction ID, gateway response, and notes.
+     *
+     * search() is now ADMIN/OFFICER only — citizens use GET /api/payments/my
+     * instead, which force-scopes the query to their own paidById.
+     *
+     * findById() stays open to all authenticated users but adds the same
+     * ownership check already used by downloadReceipt(): a CITIZEN may only
+     * fetch a payment they made themselves.
+     *
+     * Return types mirror BaseController's default methods exactly (DTO /
+     * PagedResult<DTO>, not ResponseEntity<ApiResponse<...>>) — the
+     * ApiResponse wrapping for these two endpoints happens outside this
+     * class (a ResponseBodyAdvice), unlike the hand-written endpoints below
+     * which wrap explicitly themselves.
+     */
+    @Override
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'OFFICER')")
+    public PagedResult<PaymentDto> search(@ParameterObject PaymentSearchObject searchObj) {
+        return paymentService.search(searchObj);
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public PaymentDto findById(@PathVariable UUID id) {
+        PaymentEntity payment = paymentService.findEntityById(id);
+
+        UserPrincipal principal = (UserPrincipal)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal.isCitizen()
+                && payment.getPaidBy() != null
+                && !payment.getPaidBy().getId().equals(principal.getId())) {
+            throw new AccessDeniedException("You may only view your own payments");
+        }
+
+        return paymentService.toDtoWithFineNumber(payment);
     }
 
     // ── scoped list endpoints ─────────────────────────────────────────────

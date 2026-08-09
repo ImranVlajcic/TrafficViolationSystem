@@ -57,6 +57,13 @@ import { DriverFormComponent } from './admin/driver-form.component';
 import { VehicleListComponentAdmin } from './admin/vehicle-list.component';
 import { VehicleFormComponent } from './admin/vehicle-form.component';
 import { VehicleTransferComponent } from './admin/vehicle-transfer.component';
+import { ViolationListComponent as AdminViolationListComponent } from './admin/violation-list.component';
+import { AdminFineListComponent } from './admin/fine-list.component';
+import { AdminFineDetailComponent } from './admin/fine-detail.component';
+import { AdminAppealListComponent } from './admin/appeal-list.component';
+import { AdminAppealDetailComponent } from './admin/appeal-detail.component';
+import { AdminPaymentListComponent } from './admin/payment-list.component';
+import { AdminPaymentDetailComponent } from './admin/payment-detail.component';
 
 // Real feature routes (defined explicitly below) instead of placeholders —
 // same pattern as CITIZEN_BUILT_PATHS/OFFICER_BUILT_PATHS.
@@ -70,7 +77,11 @@ const ADMIN_BUILT_PATHS = [
   'system-config',
   'audit-logs',
   'jobs',
-  'analytics'
+  'analytics',
+  'violations',
+  'fines',
+  'appeals',
+  'payments',
 ];
 const adminChildRoutes = ADMIN_NAV.flatMap((group) =>
   group.items
@@ -181,6 +192,17 @@ const routes: Routes = [
         component: VehicleTransferComponent,
         data: { title: 'Transfer ownership', code: 'VH' }
       },
+      {
+        path: 'violations',
+        component: AdminViolationListComponent,
+        data: { title: 'Violations', code: 'VL' }
+      },
+      { path: 'fines', component: AdminFineListComponent },
+      { path: 'fines/:id', component: AdminFineDetailComponent },
+      { path: 'appeals', component: AdminAppealListComponent, data: { title: 'Appeals', code: 'AP' } },
+      { path: 'appeals/:id', component: AdminAppealDetailComponent, data: { title: 'Appeal review', code: 'AP' } },
+      { path: 'payments', component: AdminPaymentListComponent, data: { title: 'Payments', code: 'PY' } },
+      { path: 'payments/:id', component: AdminPaymentDetailComponent, data: { title: 'Payment detail', code: 'PY' } },
       ...adminChildRoutes
     ]
   },

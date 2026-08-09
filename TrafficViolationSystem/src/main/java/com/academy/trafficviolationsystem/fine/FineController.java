@@ -61,9 +61,20 @@ public class FineController implements BaseController<FineEntity, FineDto, FineS
 
     // ── override findById to return enriched DTO with violation reference ─
 
+    // NOTE: this is a class override of an interface method (BaseController
+    // .findById). If BaseController's default carries @PreAuthorize, the
+    // CGLIB proxy does NOT apply it to this override — same confirmed bug
+    // as the Appeal module. @PreAuthorize is restated explicitly here
+    // (kept to the original (UUID id) signature — can't add a @CurrentUser
+    // param without breaking @Override — so it uses Spring Security's
+    // implicit `authentication` SpEL variable instead of #principal, same
+    // as downloadPdf's SpEL below). Adjust roles/SpEL to match whatever
+    // access rule BaseController's default actually encodes (this assumes:
+    // staff can view any fine, citizens only their own).
     @Override
     @GetMapping("/{id}")
     @Operation(summary = "Get a fine by ID with full details including violation reference")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OFFICER') or @securityHelper.isOwnFine(#id, authentication.principal)")
     public FineDto findById(@PathVariable UUID id) {
         return fineService.getFineWithDetails(id);
     }
@@ -125,10 +136,6 @@ public class FineController implements BaseController<FineEntity, FineDto, FineS
     @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<ApiResponse<List<FineDto>>> getMyFines(
             @CurrentUser UserPrincipal principal) {
-        // Citizen's driverId is resolved via their linked DriverEntity
-        // A full implementation queries DriverRepository.findByUserId(principal.getId())
-        // then calls fineService.getForDriver(driver.getId())
-        // Stub shown here — wire in DriverRepository when integrating:
-        return ResponseEntity.ok(ApiResponse.ok(List.of()));
+        return ResponseEntity.ok(ApiResponse.ok(fineService.getMyFines(principal.getId())));
     }
 }

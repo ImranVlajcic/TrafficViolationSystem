@@ -1,0 +1,100 @@
+<div class="list-header">
+  <div>
+    <p class="eyebrow">Finance</p>
+    <h1 class="admin-page-title">Fine detail</h1>
+    <p class="admin-page-lede" *ngIf="fine">{{ fine.fineNumber }}</p>
+  </div>
+  <button class="btn btn-outline-secondary btn-sm" type="button" (click)="back()">Back to fines</button>
+</div>
+
+<div class="auth-alert auth-alert--error" *ngIf="error">{{ error }}</div>
+<div *ngIf="loading">Loading…</div>
+
+<div class="admin-form" *ngIf="fine && !loading">
+  <div class="admin-form__field">
+    <label>Status</label>
+    <span>{{ statusLabel }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Total due</label>
+    <span>{{ fine.totalDue.toFixed(2) }} {{ fine.currency }}</span>
+  </div>
+  <div class="admin-form__field" *ngIf="fine.discountAmount">
+    <label>Discount</label>
+    <span>{{ fine.discountAmount.toFixed(2) }} {{ fine.currency }}</span>
+  </div>
+  <div class="admin-form__field" *ngIf="fine.surchargeAmount">
+    <label>Surcharge</label>
+    <span>{{ fine.surchargeAmount.toFixed(2) }} {{ fine.currency }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Penalty points</label>
+    <span>{{ fine.penaltyPoints }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Issued</label>
+    <span>{{ fine.issuedAt | date }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Due date</label>
+    <span>{{ fine.dueDate | date }}</span>
+  </div>
+  <div class="admin-form__field" *ngIf="fine.paidAt">
+    <label>Paid</label>
+    <span>{{ fine.paidAt | date }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Driver</label>
+    <a [routerLink]="['/admin/drivers', fine.driverId, 'edit']">{{ fine.driverId }}</a>
+  </div>
+  <div class="admin-form__field">
+    <label>Violation ID</label>
+    <span>{{ fine.violationId }}</span>
+  </div>
+  <div class="admin-form__field">
+    <label>Issued by</label>
+    <span>{{ fine.issuedById }}</span>
+  </div>
+</div>
+
+<div class="admin-form" *ngIf="fine && !loading" style="margin-top: 1.5rem">
+  <div class="admin-form__field admin-form__field--actions">
+    <button
+      class="btn btn-outline-primary btn-sm"
+      type="button"
+      [disabled]="!pdfReady || downloadingPdf"
+      (click)="downloadPdf()"
+    >
+      {{ downloadingPdf ? 'Downloading…' : (pdfReady ? 'Download PDF' : 'PDF not ready') }}
+    </button>
+  </div>
+  <div class="auth-alert auth-alert--error" *ngIf="pdfError">{{ pdfError }}</div>
+</div>
+
+<div class="admin-form" *ngIf="fine && !loading && canCancel" style="margin-top: 1.5rem">
+  <div class="admin-form__field">
+    <label>Cancellation reason</label>
+    <input type="text" class="form-control form-control-sm" [(ngModel)]="reasonDraft" />
+  </div>
+  <div class="admin-form__field admin-form__field--actions">
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      [disabled]="!canSubmitCancel || processing"
+      (click)="requestCancel()"
+    >
+      Cancel fine
+    </button>
+  </div>
+  <div class="auth-alert auth-alert--error" *ngIf="actionError">{{ actionError }}</div>
+</div>
+
+<app-confirm-dialog
+  [open]="confirmOpen"
+  [tone]="confirmTone"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Cancel fine"
+  (confirmed)="onDialogConfirmed()"
+  (cancelled)="onDialogCancelled()"
+></app-confirm-dialog>

@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -142,29 +143,14 @@ public class RoadZoneService implements BaseCRUDService<
      * Overrides BaseService.findById() to enrich the DTO with cameraCount.
      * The mapper leaves cameraCount = null; we fill it here.
      */
+    // RoadZoneService.java
+
     @Override
     @Transactional(readOnly = true)
     public RoadZoneDto findById(Integer id) {
         return enrichWithCameraCount(getMapper().toDto(findEntityById(id)));
     }
 
-    /**
-     * Overrides BaseService.search() results to enrich each DTO with cameraCount.
-     * We intercept afterSearch by overriding the search method and mapping ourselves.
-     */
-    @Override
-    public com.academy.trafficviolationsystem.core.model.PagedResult<RoadZoneDto> search(
-            RoadZoneSearchObject searchObj) {
-        com.academy.trafficviolationsystem.core.model.PagedResult<RoadZoneDto> result =
-                BaseCRUDService.super.search(searchObj);
-        // Enrich each DTO with cameraCount
-        List<RoadZoneDto> enriched = result.getResultList()
-                .stream()
-                .map(this::enrichWithCameraCount)
-                .collect(Collectors.toList());
-        return new com.academy.trafficviolationsystem.core.model.PagedResult<>(
-                result.getHasMore(), enriched, result.getCount());
-    }
 
     // ── camera assignment ─────────────────────────────────────────────────────
 
@@ -192,22 +178,52 @@ public class RoadZoneService implements BaseCRUDService<
         cameraRepository.updateZoneId(cameraId, null);
     }
 
-    /** Active zones for map layer / dropdown — no pagination needed. */
-    @Transactional(readOnly = true)
-    public List<RoadZoneDto> findActiveZones() {
-        return zoneRepository.findByIsActiveTrueOrderByNameAsc()
-                .stream()
-                .map(e -> enrichWithCameraCount(mapper.toDto(e)))
-                .collect(Collectors.toList());
+    /**
+     * Overrides BaseService.search() results to enrich each DTO with cameraCount.
+     * We intercept afterSearch by overriding the search method and mapping ourselves.
+     */
+
+    @Override
+    public com.academy.trafficviolationsystem.core.model.PagedResult<RoadZoneDto> search(
+            RoadZoneSearchObject searchObj) {
+        com.academy.trafficviolationsystem.core.model.PagedResult<RoadZoneDto> result =
+                BaseCRUDService.super.search(searchObj);
+        List<RoadZoneDto> enriched = enrichWithCameraCounts(result.getResultList());
+        return new com.academy.trafficviolationsystem.core.model.PagedResult<>(
+                result.getHasMore(), enriched, result.getCount());
     }
 
-    // ── private helpers ───────────────────────────────────────────────────────
+    public List<RoadZoneDto> findActiveZones() {
+        List<RoadZoneDto> dtos = zoneRepository.findByIsActiveTrueOrderByNameAsc()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+        return enrichWithCameraCounts(dtos);
+    }
 
     private RoadZoneDto enrichWithCameraCount(RoadZoneDto dto) {
         if (dto.getId() != null) {
             dto.setCameraCount(cameraRepository.countByZoneId(dto.getId()));
         }
         return dto;
+    }
+
+    private List<RoadZoneDto> enrichWithCameraCounts(List<RoadZoneDto> dtos) {
+        if (dtos.isEmpty()) return dtos;
+
+        List<Integer> zoneIds = dtos.stream()
+                .map(RoadZoneDto::getId)
+                .collect(Collectors.toList());
+
+        Map<Integer, Long> counts = cameraRepository.countGroupedByZoneIds(zoneIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> (Long) row[1]));
+
+        dtos.forEach(dto -> dto.setCameraCount(
+                counts.getOrDefault(dto.getId(), 0L).intValue()));
+
+        return dtos;
     }
 
     private void validateSpeedLimit(Integer speedLimitKmh) {
@@ -218,11 +234,66 @@ public class RoadZoneService implements BaseCRUDService<
 
     private void validateGeoJson(String geoJson) {
         if (!StringUtils.hasText(geoJson)) return;
+
+        com.fasterxml.jackson.databind.JsonNode root;
         try {
-            objectMapper.readTree(geoJson);
+            root = objectMapper.readTree(geoJson);
         } catch (JsonProcessingException ex) {
             throw new BadRequestException(
-                "geoJsonBoundary is not valid JSON: " + ex.getOriginalMessage());
+                    "geoJsonBoundary is not valid JSON: " + ex.getOriginalMessage());
+        }
+
+        com.fasterxml.jackson.databind.JsonNode typeNode = root.get("type");
+        if (typeNode == null || !("Polygon".equals(typeNode.asText()) || "MultiPolygon".equals(typeNode.asText()))) {
+            throw new BadRequestException(
+                    "geoJsonBoundary must have type \"Polygon\" or \"MultiPolygon\"");
+        }
+
+        com.fasterxml.jackson.databind.JsonNode coords = root.get("coordinates");
+        if (coords == null || !coords.isArray() || coords.isEmpty()) {
+            throw new BadRequestException(
+                    "geoJsonBoundary is missing a valid \"coordinates\" array");
+        }
+
+        // Polygon: coordinates = [ [ [lng,lat], [lng,lat], ... ] ]  (at least one ring, ring closed, >=4 points)
+        if ("Polygon".equals(typeNode.asText())) {
+            validatePolygonRings(coords);
+        } else {
+            // MultiPolygon: coordinates = [ Polygon, Polygon, ... ]
+            for (com.fasterxml.jackson.databind.JsonNode polygon : coords) {
+                validatePolygonRings(polygon);
+            }
+        }
+    }
+
+    private void validatePolygonRings(com.fasterxml.jackson.databind.JsonNode ringsNode) {
+        if (!ringsNode.isArray() || ringsNode.isEmpty()) {
+            throw new BadRequestException("geoJsonBoundary polygon must have at least one ring");
+        }
+        for (com.fasterxml.jackson.databind.JsonNode ring : ringsNode) {
+            if (!ring.isArray() || ring.size() < 4) {
+                throw new BadRequestException(
+                        "geoJsonBoundary ring must have at least 4 positions (closed ring)");
+            }
+            com.fasterxml.jackson.databind.JsonNode first = ring.get(0);
+            com.fasterxml.jackson.databind.JsonNode last = ring.get(ring.size() - 1);
+            if (!first.equals(last)) {
+                throw new BadRequestException(
+                        "geoJsonBoundary ring must be closed (first and last position equal)");
+            }
+            for (com.fasterxml.jackson.databind.JsonNode position : ring) {
+                if (!position.isArray() || position.size() < 2
+                        || !position.get(0).isNumber() || !position.get(1).isNumber()) {
+                    throw new BadRequestException(
+                            "geoJsonBoundary position must be [longitude, latitude] numbers");
+                }
+                double lng = position.get(0).asDouble();
+                double lat = position.get(1).asDouble();
+                if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+                    throw new BadRequestException(
+                            "geoJsonBoundary position out of range: [" + lng + ", " + lat + "]");
+                }
+            }
         }
     }
 }

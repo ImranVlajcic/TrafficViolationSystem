@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(
@@ -18,10 +20,14 @@ import org.hibernate.annotations.Check;
 )
 @Check(
         name = "chk_zone_shape",
-        constraints = "(radius_meters IS NOT NULL AND geo_json_boundary IS NULL AND center_latitude IS NOT NULL AND center_longitude IS NOT NULL) " +
-                "OR (radius_meters IS NULL AND geo_json_boundary IS NOT NULL)"
+        constraints =
+                "(radius_meters IS NOT NULL AND center_latitude IS NOT NULL AND center_longitude IS NOT NULL AND geo_json_boundary IS NULL) " +
+                        "OR " +
+                        "(radius_meters IS NULL AND center_latitude IS NULL AND center_longitude IS NULL AND geo_json_boundary IS NOT NULL)"
 )
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@SQLDelete(sql = "UPDATE road_zones SET deleted = now() WHERE id = ?")
+@SQLRestriction("deleted IS NULL")
 public class RoadZoneEntity extends AutoIdBaseEntity {
 
     @Column(nullable = false)

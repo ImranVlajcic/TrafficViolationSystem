@@ -2,7 +2,9 @@ package com.academy.trafficviolationsystem.payment;
 
 import com.academy.trafficviolationsystem.core.exceptions.AppException;
 import com.academy.trafficviolationsystem.core.exceptions.ErrorCode;
+import com.academy.trafficviolationsystem.core.exceptions.NotFoundException;
 import com.academy.trafficviolationsystem.fine.FineEntity;
+import com.academy.trafficviolationsystem.fine.FineRepository;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -26,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * Generates payment receipt PDFs using iText 7.
@@ -33,12 +36,17 @@ import java.time.format.DateTimeFormatter;
  * Runs on the dedicated pdfExecutor thread pool (@Async("pdfExecutor"))
  * so it never blocks the HTTP thread that confirmed the payment.
  *
- * Flow (called by PaymentService.afterSuccessfulPayment):
- *  1. Build receipt PDF with: transaction ID, amount, fine number, driver
+ * Flow (called by PaymentEventListener, after the payment transaction commits):
+ *  1. Reload the payment and fine fresh, inside this method's own transaction
+ *     — entities must not be passed in from the caller's session, since this
+ *     runs on a separate @Async thread with no access to that session
+ *     (accessing a lazy relation like fine.getDriver() on a detached entity
+ *     from another thread throws LazyInitializationException).
+ *  2. Build receipt PDF with: transaction ID, amount, fine number, driver
  *     details, payment method, timestamp, and a green "PAYMENT CONFIRMED" stamp.
- *  2. Write to {app.pdf.output-dir}/receipts/receipt-{transactionId}.pdf
- *  3. Call PaymentRepository.setReceiptPdfPath() to persist the path.
- *  4. Client polls GET /api/payments/{id} until receiptReady = true, then
+ *  3. Write to {app.pdf.output-dir}/receipts/receipt-{transactionId}.pdf
+ *  4. Call PaymentRepository.setReceiptPdfPath() to persist the path.
+ *  5. Client polls GET /api/payments/{id} until receiptReady = true, then
  *     calls GET /api/payments/{id}/receipt to download.
  */
 @Service
@@ -53,24 +61,37 @@ public class PaymentConfirmationPdfService {
     private static final DeviceRgb ROW_ALT_COLOR  = new DeviceRgb(245, 247, 250);
 
     private final PaymentRepository paymentRepository;
+    private final FineRepository    fineRepository;
 
     @Value("${app.pdf.output-dir:./pdf-output}")
     private String pdfOutputDir;
 
-    public PaymentConfirmationPdfService(PaymentRepository paymentRepository) {
+    public PaymentConfirmationPdfService(PaymentRepository paymentRepository,
+                                          FineRepository fineRepository) {
         this.paymentRepository = paymentRepository;
+        this.fineRepository    = fineRepository;
     }
 
     /**
      * Generates the receipt PDF for a successful payment.
      * Runs asynchronously on pdfExecutor — does not block the caller.
      *
-     * @param payment The successfully processed PaymentEntity.
-     * @param fine    The FineEntity that was paid (pre-loaded by PaymentService).
+     * Takes IDs rather than entities on purpose: this executes on a separate
+     * thread/session (@Async) after the originating transaction has already
+     * committed, so it must load its own fresh, attached entities rather than
+     * reuse ones loaded by the caller.
+     *
+     * @param paymentId The successfully processed payment's ID.
+     * @param fineId    The ID of the FineEntity that was paid.
      */
     @Async("pdfExecutor")
     @Transactional
-    public void generateReceipt(PaymentEntity payment, FineEntity fine) {
+    public void generateReceipt(UUID paymentId, UUID fineId) {
+        PaymentEntity payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException("Payment " + paymentId + " not found"));
+        FineEntity fine = fineRepository.findById(fineId)
+                .orElseThrow(() -> new NotFoundException("Fine " + fineId + " not found"));
+
         try {
             Path outputDir = Paths.get(pdfOutputDir, "receipts");
             Files.createDirectories(outputDir);

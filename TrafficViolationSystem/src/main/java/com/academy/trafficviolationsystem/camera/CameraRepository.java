@@ -72,4 +72,8 @@ public interface CameraRepository extends JpaRepository<CameraEntity, Integer> {
 
     @Query("SELECT COUNT(c) FROM CameraEntity c WHERE c.isOnline = true")
     int countCurrentlyOnline();
+
+    // CameraRepository.java
+    @Query("SELECT c.zoneId, COUNT(c) FROM CameraEntity c WHERE c.zoneId IN :zoneIds AND c.deletedAt IS NULL GROUP BY c.zoneId")
+    List<Object[]> countGroupedByZoneIds(@Param("zoneIds") List<Integer> zoneIds);
 }
